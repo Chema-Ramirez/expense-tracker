@@ -1,17 +1,18 @@
 const express = require("express");
-const dotenv = require("dotenv");
 const cors = require("cors");
-const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRoutes")
+require("dotenv").config();
 
-dotenv.config();
-connectDB();
+const connectDB = require("./config/db");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
+connectDB();
+
 app.use(cors());
 app.use(express.json());
-app.use("/api/auth", authRoutes)
+
+app.use("/api/auth", authRoutes);
 
 app.get("/api/health", (req, res) => {
     res.json({ status: "OK", message: "API working" });
