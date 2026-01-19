@@ -9,6 +9,6 @@ const {
 router.post("/", protect, createExpense);
 router.get("/", protect, getExpenses);
 router.put("/:id", protect, updateExpense)
-router.delete(":/id", protect, deleteExpense)
+router.delete("/:id", protect, deleteExpense)
 
 module.exports = router;

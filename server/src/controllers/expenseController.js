@@ -1,3 +1,4 @@
+const { filter } = require("@primeuix/themes/aura/datatable");
 const Expense = require("../models/Expense");
 
 //CREATE EXPENSE
@@ -24,13 +25,25 @@ const createExpense = async (req, res) => {
 };
 
 
-//GET USER EXPENSES
+//GET USER EXPENSES WITH FILTERS
 const getExpenses = async (req, res) => {
     try {
-        const expenses = (await Expense.find({ user: req.user.id })).toSorted({ date: -1 });
+        const { category, startDate, endDate } = req.query;
+
+        const filters = { user: req.user.id }
+
+        if (category) { filters.category = category }
+
+        if (startDate || endDate) {
+            filters.date = {};
+            if (startDate) filters.date.$gte = new Date(startDate);
+            if (endDate) filters.date.$lte = new Date(endDate);
+        }
+
+        const expenses = await Expense.find(filters).sort({ date: -1 });
         res.json(expenses);
-    }
-    catch (error) {
+
+    } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" })
     };
