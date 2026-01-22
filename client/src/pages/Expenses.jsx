@@ -14,15 +14,23 @@ const Expenses = () => {
     const [expenses, setExpenses] = useState([]);
     const [filters, setFilters] = useState({});
     const [editingExpense, setEditingExpense] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
 
     useEffect(() => {
         const fetchExpenses = async () => {
+            setLoading(true);
+            setError(null);
+
             try {
                 const data = await getExpenses(filters, token);
                 setExpenses(data);
             } catch (error) {
                 console.error("Error fetching expenses:", error);
+                setError("Failed to load expenses");
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -30,6 +38,7 @@ const Expenses = () => {
             fetchExpenses();
         }
     }, [filters, token]);
+
 
 
     // CREATE
@@ -97,9 +106,14 @@ const Expenses = () => {
                 />
             )}
 
-            {expenses.length === 0 ? (
-                <p>No expenses</p>
-            ) : (
+            {loading && <p>Loading expenses...</p>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
+
+            {!loading && expenses.length === 0 && (
+                <p>No expenses found</p>
+            )}
+
+            {!loading && expenses.length > 0 && (
                 <ul>
                     {expenses.map((expense) => (
                         <li key={expense._id}>
@@ -109,9 +123,7 @@ const Expenses = () => {
                             {new Date(expense.date).toLocaleDateString()}
                             <br />
 
-                            <button
-                                onClick={() => handleDelete(expense._id)}
-                            >
+                            <button onClick={() => handleDelete(expense._id)}>
                                 Delete
                             </button>
 
@@ -119,6 +131,11 @@ const Expenses = () => {
                                 Edit
                             </button>
 
+                            {editingExpense && (
+                                <button onClick={() => setEditingExpense(null)}>
+                                    Cancel edit
+                                </button>
+                            )}
                         </li>
                     ))}
                 </ul>
