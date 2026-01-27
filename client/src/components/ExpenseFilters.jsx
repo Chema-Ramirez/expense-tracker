@@ -6,29 +6,50 @@ const ExpenseFilters = ({ setFilters }) => {
     const [endDate, setEndDate] = useState("");
 
     const applyFilters = () => {
-        setFilters({
-            category, startDate, endDate
-        });
+        if (startDate && endDate && startDate > endDate) {
+            alert("Start date cannot be after end date");
+            return;
+        }
+
+        setFilters(prev => ({
+            ...prev,
+            category,
+            startDate,
+            endDate,
+        }));
     };
 
     return (
         <div>
             <h4>Filters</h4>
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+
+            <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+            >
                 <option value="">All</option>
                 <option value="food">Food</option>
                 <option value="rent">Rent</option>
                 <option value="transport">Transport</option>
             </select>
 
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+            />
 
-            <button onClick={applyFilters}>Apply Filters</button>
+            <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+            />
 
+            <button onClick={applyFilters}>
+                Apply Filters
+            </button>
         </div>
     );
 };
 
-
-export default ExpenseFilters
+export default ExpenseFilters;
