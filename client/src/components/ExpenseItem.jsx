@@ -1,23 +1,17 @@
-const ExpenseItem = ({ expense, onDelete, onEdit }) => {
+const ExpenseItem = ({ expense, onEdit, onDelete }) => {
     return (
-        <li>
-            <strong>{expense.title}</strong> –{" "}
-            {Number(expense.amount).toFixed(2)} €
-            <br />
+        <li className="expense-item">
+            <div>
+                <strong>{expense.description || expense.category}</strong>
+                <small>{new Date(expense.date).toLocaleDateString()}</small>
+            </div>
 
-            {expense.category} |{" "}
-            {expense.date
-                ? new Date(expense.date).toLocaleDateString()
-                : "No date"}
-            <br />
+            <div>
+                <span>{expense.amount} €</span>
 
-            <button onClick={() => onDelete(expense._id || expense.id)}>
-                Delete
-            </button>
-
-            <button onClick={() => onEdit({ ...expense })}>
-                Edit
-            </button>
+                <button onClick={() => onEdit(expense)}>Editar</button>
+                <button onClick={() => onDelete(expense._id)}>Eliminar</button>
+            </div>
         </li>
     );
 };

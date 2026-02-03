@@ -1,18 +1,16 @@
 import ExpenseItem from "./ExpenseItem";
 
-const ExpenseList = ({ expenses = [], onDelete, onEdit }) => {
-    if (expenses.length === 0) {
-        return <p>No expenses found</p>;
-    }
+const ExpenseList = ({ expenses, onEdit, onDelete }) => {
+    if (!expenses.length) return <p>No hay gastos registrados</p>;
 
     return (
-        <ul>
+        <ul className="expense-list">
             {expenses.map((expense) => (
                 <ExpenseItem
-                    key={expense._id || expense.id}
+                    key={expense._id}
                     expense={expense}
-                    onDelete={onDelete}
                     onEdit={onEdit}
+                    onDelete={onDelete}
                 />
             ))}
         </ul>

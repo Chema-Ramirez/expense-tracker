@@ -1,21 +1,39 @@
 import { Routes, Route } from "react-router-dom";
-import Expenses from "./pages/Expenses.jsx";
-import Login from "./pages/Login.jsx";
-import PrivateRoute from "./components/PrivateRoute.jsx";
+import Layout from "./components/Layout";
+import PrivateRoute from "./components/PrivateRoute";
+
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import Expenses from "./pages/Expenses";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import NotFound from "./pages/NotFound";
+
+import DashboardLayout from "./components/DashboardLayout";
 
 function App() {
     return (
         <Routes>
-            <Route path="/login" element={<Login />} />
+            {/* Público */}
+            <Route element={<Layout />}>
+                <Route index element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+            </Route>
 
+            {/* Privado */}
             <Route
-                path="/"
                 element={
                     <PrivateRoute>
-                        <Expenses />
+                        <DashboardLayout />
                     </PrivateRoute>
                 }
-            />
+            >
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/expenses" element={<Expenses />} />
+            </Route>
+
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }
