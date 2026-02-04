@@ -14,14 +14,14 @@ import DashboardLayout from "./components/DashboardLayout";
 function App() {
     return (
         <Routes>
-            {/* Público */}
+            {/* PUBLICO */}
             <Route element={<Layout />}>
                 <Route index element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
             </Route>
 
-            {/* Privado */}
+            {/* PRIVADO */}
             <Route
                 element={
                     <PrivateRoute>

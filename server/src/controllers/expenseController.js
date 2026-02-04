@@ -1,4 +1,3 @@
-const { filter } = require("@primeuix/themes/aura/datatable");
 const Expense = require("../models/Expense");
 
 //CREATE EXPENSE
@@ -63,7 +62,7 @@ const updateExpense = async (req, res) => {
             return res.status(403).json({ message: "Not authorized" });
         }
 
-        const updateExpense = await Expense.findById(
+        const updateExpense = await Expense.findByIdAndUpdate(
             req.params.id, req.body, { new: true }
         );
 

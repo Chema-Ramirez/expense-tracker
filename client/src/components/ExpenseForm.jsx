@@ -1,154 +1,117 @@
 import React, { useState } from "react";
+import { Box, TextField, Button, MenuItem } from "@mui/material";
+
+const categoriesList = [
+    "Sueldo",
+    "Transporte",
+    "Entretenimiento",
+    "Salud",
+    "Comida",
+    "Otros",
+];
 
 const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }) => {
-    const [amount, setAmount] = useState(expenseToEdit?.amount || "");
-    const [category, setCategory] = useState(expenseToEdit?.category || "");
-    const [description, setDescription] = useState(expenseToEdit?.description || "");
-    const [date, setDate] = useState(expenseToEdit ? expenseToEdit.date.slice(0, 10) : "");
+    const [form, setForm] = useState(() => ({
+        amount: expenseToEdit?.amount || "",
+        category: expenseToEdit?.category || "",
+        description: expenseToEdit?.description || "",
+        date: expenseToEdit?.date?.slice(0, 10) || "",
+    }));
+
     const [error, setError] = useState("");
 
 
+    React.useEffect(() => {
+        setForm({
+            amount: expenseToEdit?.amount || "",
+            category: expenseToEdit?.category || "",
+            description: expenseToEdit?.description || "",
+            date: expenseToEdit?.date?.slice(0, 10) || "",
+        });
+    }, [expenseToEdit]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!amount || !category) {
+        if (!form.amount || !form.category) {
             setError("Por favor, ingresa un monto y una categoría.");
             return;
         }
 
-        onSubmit({
-            amount: parseFloat(amount),
-            category,
-            description,
-            date,
-        });
+        onSubmit({ ...form, amount: parseFloat(form.amount) });
 
         if (!expenseToEdit) {
-            setAmount("");
-            setCategory("");
-            setDescription("");
-            setDate("");
+            setForm({ amount: "", category: "", description: "", date: "" });
         }
 
         setError("");
     };
 
     return (
-        <form
+        <Box
+            component="form"
             onSubmit={handleSubmit}
-            className="expense-form"
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.8rem",
-                padding: "1rem",
-                background: "#fff",
-                borderRadius: "12px",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-                width: "100%",
-                maxWidth: "400px",
-                margin: "0 auto",
-            }}
+            sx={{ display: "flex", flexDirection: "column", gap: 1 }}
         >
-            {error && (
-                <p style={{ color: "red", fontSize: "0.9rem", margin: 0 }}>{error}</p>
-            )}
+            {error && <Box sx={{ color: "error.main", fontSize: 0.9 }}>{error}</Box>}
 
-            <input
+            <TextField
+                label="Monto (€)"
                 type="number"
-                placeholder="Monto (€)"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="input-field"
-                style={{
-                    padding: "0.8rem",
-                    borderRadius: "8px",
-                    border: "1px solid #ccc",
-                    fontSize: "1rem",
-                }}
+                name="amount"
+                value={form.amount}
+                onChange={handleChange}
+                fullWidth
             />
 
-            <input
-                type="text"
-                placeholder="Categoría"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="input-field"
-                style={{
-                    padding: "0.8rem",
-                    borderRadius: "8px",
-                    border: "1px solid #ccc",
-                    fontSize: "1rem",
-                }}
-            />
-
-            <input
-                type="text"
-                placeholder="Descripción (opcional)"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="input-field"
-                style={{
-                    padding: "0.8rem",
-                    borderRadius: "8px",
-                    border: "1px solid #ccc",
-                    fontSize: "1rem",
-                }}
-            />
-
-            <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="input-field"
-                style={{
-                    padding: "0.8rem",
-                    borderRadius: "8px",
-                    border: "1px solid #ccc",
-                    fontSize: "1rem",
-                }}
-            />
-
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: expenseToEdit ? "space-between" : "flex-end",
-                    gap: "0.5rem",
-                }}
+            <TextField
+                select
+                label="Categoría"
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                fullWidth
             >
-                {expenseToEdit && (
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        style={{
-                            padding: "0.8rem 1rem",
-                            borderRadius: "8px",
-                            border: "none",
-                            background: "#ccc",
-                            color: "#000",
-                            fontWeight: "bold",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Cancelar
-                    </button>
-                )}
+                {categoriesList.map((cat) => (
+                    <MenuItem key={cat} value={cat}>
+                        {cat}
+                    </MenuItem>
+                ))}
+            </TextField>
 
-                <button
-                    type="submit"
-                    style={{
-                        padding: "0.8rem 1rem",
-                        borderRadius: "8px",
-                        border: "none",
-                        background: "#007bff",
-                        color: "#fff",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                    }}
-                >
+            <TextField
+                label="Descripción (opcional)"
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                fullWidth
+            />
+
+            <TextField
+                label="Fecha"
+                type="date"
+                name="date"
+                value={form.date}
+                onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+            />
+
+            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                {expenseToEdit && (
+                    <Button onClick={onCancel} variant="outlined" color="inherit">
+                        Cancelar
+                    </Button>
+                )}
+                <Button type="submit" variant="contained" color="primary">
                     {expenseToEdit ? "Actualizar" : "Agregar"}
-                </button>
-            </div>
-        </form>
+                </Button>
+            </Box>
+        </Box>
     );
 };
 

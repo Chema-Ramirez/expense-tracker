@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/expenses", expenseRoutes)
+app.use("/api/expenses", protect, expenseRoutes)
 
 app.get("/api/health", (req, res) => {
     res.json({ status: "OK", message: "API working" });

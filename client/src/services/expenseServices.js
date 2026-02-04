@@ -1,6 +1,6 @@
 import api from "../api/api";
 
-// Limpia filtros vacíos
+// LIMPIA FILTROS
 const cleanFilters = (filters = {}) =>
     Object.fromEntries(
         Object.entries(filters).filter(
@@ -8,8 +8,7 @@ const cleanFilters = (filters = {}) =>
         )
     );
 
-// =================== EXPENSE SERVICES ===================
-
+// GET
 export const getExpenses = async (filters = {}) => {
     try {
         const res = await api.get("/expenses", {
@@ -21,6 +20,7 @@ export const getExpenses = async (filters = {}) => {
     }
 };
 
+// CREATE
 export const createExpense = async (expenseData) => {
     try {
         const res = await api.post("/expenses", expenseData);
@@ -30,6 +30,7 @@ export const createExpense = async (expenseData) => {
     }
 };
 
+// UPDATE
 export const updateExpense = async (id, updatedData) => {
     try {
         const res = await api.put(`/expenses/${id}`, updatedData);
@@ -39,6 +40,7 @@ export const updateExpense = async (id, updatedData) => {
     }
 };
 
+// DELETE
 export const deleteExpense = async (id) => {
     try {
         await api.delete(`/expenses/${id}`);
@@ -48,8 +50,7 @@ export const deleteExpense = async (id) => {
     }
 };
 
-// =================== ERROR HANDLER ===================
-
+// ERROR HANDLER
 const handleError = (err, defaultMessage) => {
     if (err.response?.status === 401) {
         throw new Error("No autorizado. Token inválido o expirado.");

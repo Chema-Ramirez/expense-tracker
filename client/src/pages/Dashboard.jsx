@@ -1,13 +1,25 @@
 import { useEffect, useState, useContext, useCallback } from "react";
+import {
+    Container,
+    Typography,
+    Box,
+    Paper,
+    CircularProgress,
+    Divider,
+} from "@mui/material";
+
 import { AuthContext } from "../context/AuthContext";
+import {
+    getExpenses,
+    createExpense,
+    updateExpense,
+    deleteExpense,
+} from "../services/expenseServices";
 
 import ExpenseList from "../components/ExpenseList";
 import ExpenseFilters from "../components/ExpenseFilters";
 import ExpenseForm from "../components/ExpenseForm";
 import MonthlySummary from "../components/MonthlySummary";
-
-import { getExpenses } from "../services/expenseServices";
-import "../styles/Dashboard.css";
 
 const Dashboard = () => {
     const { user } = useContext(AuthContext);
@@ -16,92 +28,120 @@ const Dashboard = () => {
     const [filters, setFilters] = useState({});
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const [expenseToEdit, setExpenseToEdit] = useState(null);
 
-    const fetchExpenses = useCallback(async () => {
-        if (!user) return;
 
-        setLoading(true);
-        try {
-            const data = await getExpenses(filters);
-            setExpenses(data);
+    const fetchExpenses = useCallback(
+        async (appliedFilters = {}) => {
+            if (!user) return;
 
-            const uniqueCategories = [
-                ...new Set(data.map((exp) => exp.category)),
-            ];
-            setCategories(uniqueCategories);
-        } catch (error) {
-            console.error(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }, [filters, user]);
+            setLoading(true);
+            try {
+                const data = await getExpenses(appliedFilters);
+                setExpenses(data);
 
-    useEffect(() => {
-        fetchExpenses();
-    }, [fetchExpenses]);
-
-    const totalExpenses = expenses.reduce(
-        (sum, exp) => sum + exp.amount,
-        0
+                // Obtener categorías únicas para el dropdown
+                const uniqueCategories = [...new Set(data.map((exp) => exp.category))];
+                setCategories(uniqueCategories);
+            } catch (error) {
+                console.error(error.message);
+            } finally {
+                setLoading(false);
+            }
+        },
+        [user]
     );
 
-    const handleEdit = (expense) => {
-        setExpenseToEdit(expense);
-    };
+
+    useEffect(() => {
+        fetchExpenses({});
+    }, [fetchExpenses]);
+
+
+    const handleEdit = (expense) => setExpenseToEdit(expense);
+
 
     const handleDelete = async (id) => {
-        console.log("Eliminar gasto:", id);
+        try {
+            await deleteExpense(id);
+            fetchExpenses(filters);
+        } catch (error) {
+            alert(error.message);
+        }
     };
 
-    const handleFormSubmit = () => {
-        setExpenseToEdit(null);
-        fetchExpenses();
+    const handleFormSubmit = async (expenseData) => {
+        try {
+            if (expenseToEdit) {
+                await updateExpense(expenseToEdit._id, expenseData);
+            } else {
+                await createExpense(expenseData);
+            }
+
+            setExpenseToEdit(null);
+            fetchExpenses(filters);
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
+    const handleApplyFilters = (newFilters) => {
+        setFilters(newFilters);
+        fetchExpenses(newFilters);
     };
 
     return (
-        <div className="dashboard-container">
-            {/* Header */}
-            <header className="dashboard-header">
-                <h1>Control de Gastos</h1>
-                <p>
-                    Bienvenido, <strong>{user.name}</strong> 👋
-                </p>
-            </header>
+        <Container maxWidth="sm" sx={{ py: 3 }}>
+            {/* HEADER */}
+            <Box mb={3} textAlign="center">
+                <Typography variant="h4" fontWeight={700}>
+                    Control de Gastos
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                    Bienvenido, <strong>{user?.name}</strong> 👋
+                </Typography>
+            </Box>
 
             {/* SUMMARY */}
-            <MonthlySummary
-                totalExpenses={totalExpenses}
-                totalIncome={0}
-            />
+            <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
+                <MonthlySummary expenses={expenses} />
+            </Paper>
 
             {/* FILTERS */}
-            <ExpenseFilters
-                filters={filters}
-                setFilters={setFilters}
-                categories={categories}
-            />
+            <Paper sx={{ p: 2, mb: 3 }} elevation={2}>
+                <ExpenseFilters
+                    filters={filters}
+                    setFilters={handleApplyFilters}
+                    categories={categories}
+                />
+            </Paper>
 
             {/* FORM */}
-            <section className="dashboard-section">
-                <h2>
+            <Paper sx={{ p: 2, mb: 3 }} elevation={2}>
+                <Typography variant="h6" gutterBottom>
                     {expenseToEdit ? "Editar gasto" : "Nuevo gasto"}
-                </h2>
+                </Typography>
 
                 <ExpenseForm
                     expenseToEdit={expenseToEdit}
                     onSubmit={handleFormSubmit}
                     onCancel={() => setExpenseToEdit(null)}
+                    categories={categories}
                 />
-            </section>
+            </Paper>
 
             {/* LIST */}
-            <section className="dashboard-section">
-                <h2>Gastos recientes</h2>
+            <Paper sx={{ p: 2 }} elevation={2}>
+                <Typography variant="h6" gutterBottom>
+                    Gastos recientes
+                </Typography>
+
+                <Divider sx={{ mb: 2 }} />
 
                 {loading ? (
-                    <p>Cargando gastos...</p>
+                    <Box display="flex" justifyContent="center" py={3}>
+                        <CircularProgress />
+                    </Box>
                 ) : (
                     <ExpenseList
                         expenses={expenses}
@@ -109,8 +149,8 @@ const Dashboard = () => {
                         onDelete={handleDelete}
                     />
                 )}
-            </section>
-        </div>
+            </Paper>
+        </Container>
     );
 };
 

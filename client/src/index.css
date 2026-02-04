@@ -70,12 +70,18 @@ body {
 
 /* CARD */
 .expense-card {
-  background: white;
+  background-color: var(--card-bg);
+  color: var(--text-color);
   border-radius: 12px;
   padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+button.primary {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
 }
 
 .category {

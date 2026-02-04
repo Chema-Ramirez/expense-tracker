@@ -1,44 +1,67 @@
-import { useState } from "react";
-import "../styles/ExpenseFilter.css";
+import { useState, useEffect } from "react";
+import { Box, TextField, MenuItem, Button } from "@mui/material";
 
-const ExpenseFilters = ({ filters, setFilters, categories }) => {
+const categoriesList = ["Todos", "Sueldo", "Transporte", "Entretenimiento", "Salud", "Comida", "Otros"];
+
+const ExpenseFilters = ({ filters, setFilters }) => {
     const [localFilters, setLocalFilters] = useState(filters);
+
+    useEffect(() => {
+        setLocalFilters(filters);
+    }, [filters]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setLocalFilters({ ...localFilters, [name]: value });
+        setLocalFilters((prev) => ({ ...prev, [name]: value }));
     };
 
     const applyFilters = () => {
-        setFilters(localFilters);
+        const cleaned = { ...localFilters };
+        if (cleaned.category === "Todos") cleaned.category = "";
+        setFilters(cleaned);
     };
 
     return (
-        <div className="filters-container">
-            <select name="category" value={localFilters.category || ""} onChange={handleChange}>
-                <option value="">All Categories</option>
-                {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <TextField
+                select
+                label="Categoría"
+                name="category"
+                value={localFilters.category || "Todos"}
+                onChange={handleChange}
+                fullWidth
+            >
+                {categoriesList.map((cat) => (
+                    <MenuItem key={cat} value={cat}>
+                        {cat}
+                    </MenuItem>
                 ))}
-            </select>
+            </TextField>
 
-            <input
+            <TextField
+                label="Desde"
                 type="date"
                 name="startDate"
                 value={localFilters.startDate || ""}
                 onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
             />
-            <input
+
+            <TextField
+                label="Hasta"
                 type="date"
                 name="endDate"
                 value={localFilters.endDate || ""}
                 onChange={handleChange}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
             />
 
-            <button className="apply-btn" onClick={applyFilters}>
-                Apply
-            </button>
-        </div>
+            <Button variant="contained" color="primary" onClick={applyFilters}>
+                Aplicar filtros
+            </Button>
+        </Box>
     );
 };
 

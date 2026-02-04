@@ -1,23 +1,38 @@
-import "../styles/MonthlySummary.css";
+import { Box, Typography } from "@mui/material";
 
-const MonthlySummary = ({ totalExpenses, totalIncome }) => {
-    const balance = totalIncome - totalExpenses;
+const MonthlySummary = ({ expenses = [] }) => {
+    // Separar el sueldo del resto de gastos
+    const sueldoEntry = expenses.find((exp) => exp.category === "Sueldo");
+    const sueldo = sueldoEntry?.amount || 0;
+
+    const gastos = expenses
+        .filter((exp) => exp.category !== "Sueldo")
+        .reduce((sum, exp) => sum + exp.amount, 0);
+
+    const ahorro = sueldo - gastos;
 
     return (
-        <div className="summary-card">
-            <div className="summary-item">
-                <span>Total Income</span>
-                <strong>${totalIncome.toFixed(2)}</strong>
-            </div>
-            <div className="summary-item">
-                <span>Total Expenses</span>
-                <strong>${totalExpenses.toFixed(2)}</strong>
-            </div>
-            <div className="summary-item balance">
-                <span>Balance</span>
-                <strong>${balance.toFixed(2)}</strong>
-            </div>
-        </div>
+        <Box
+            display="flex"
+            flexDirection="column"
+            gap={1}
+            sx={{
+                p: 2,
+                background: "#f5f5f5",
+                borderRadius: 2,
+                textAlign: "center",
+            }}
+        >
+            <Typography variant="body1">
+                Sueldo: <strong>{sueldo.toFixed(2)} €</strong>
+            </Typography>
+            <Typography variant="body1">
+                Gastos: <strong>{gastos.toFixed(2)} €</strong>
+            </Typography>
+            <Typography variant="body1" color={ahorro < 0 ? "error.main" : "success.main"}>
+                Ahorro mensual: <strong>{ahorro.toFixed(2)} €</strong>
+            </Typography>
+        </Box>
     );
 };
 
