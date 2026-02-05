@@ -6,6 +6,8 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const protect = require("./middleware/authMiddleware");
 const expenseRoutes = require("./routes/expenseRoutes");
+const savingsGoalRoutes = require("./routes/savingsGoalRoutes");
+
 
 const app = express();
 
@@ -16,6 +18,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", protect, expenseRoutes)
+app.use("/api/savings", savingsGoalRoutes);
 
 app.get("/api/health", (req, res) => {
     res.json({ status: "OK", message: "API working" });
