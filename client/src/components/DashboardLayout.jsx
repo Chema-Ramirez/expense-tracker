@@ -46,12 +46,20 @@ const DashboardLayout = () => {
                 <ListItemButton component={Link} to="/expenses">
                     <ListItemText primary="Gastos" />
                 </ListItemButton>
+                <ListItemButton component={Link} to="/piggybank">
+                    <ListItemText primary="Hucha" />
+                </ListItemButton>
                 {user && (
-                    <ListItemButton onClick={handleLogout} sx={{ mt: 2, bgcolor: "#e74c3c", color: "#fff", borderRadius: 1 }}>
+                    <ListItemButton
+                        onClick={handleLogout}
+                        sx={{ mt: 2, bgcolor: "#e74c3c", color: "#fff", borderRadius: 1 }}
+                    >
                         <ListItemText primary="Cerrar sesión" />
                     </ListItemButton>
                 )}
             </List>
+
+
         </Box>
     );
 

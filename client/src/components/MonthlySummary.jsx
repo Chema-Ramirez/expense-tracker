@@ -1,7 +1,6 @@
 import { Box, Typography } from "@mui/material";
 
 const MonthlySummary = ({ expenses = [] }) => {
-    // Separar el sueldo del resto de gastos
     const sueldoEntry = expenses.find((exp) => exp.category === "Sueldo");
     const sueldo = sueldoEntry?.amount || 0;
 

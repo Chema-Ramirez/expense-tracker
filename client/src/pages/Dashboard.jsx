@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Container,
     Typography,
@@ -6,6 +7,7 @@ import {
     Paper,
     CircularProgress,
     Divider,
+    Button,
 } from "@mui/material";
 
 import { AuthContext } from "../context/AuthContext";
@@ -23,6 +25,7 @@ import MonthlySummary from "../components/MonthlySummary";
 
 const Dashboard = () => {
     const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const [expenses, setExpenses] = useState([]);
     const [filters, setFilters] = useState({});
@@ -30,7 +33,7 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [expenseToEdit, setExpenseToEdit] = useState(null);
 
-
+    // FETCH EXPENSES
     const fetchExpenses = useCallback(
         async (appliedFilters = {}) => {
             if (!user) return;
@@ -40,8 +43,9 @@ const Dashboard = () => {
                 const data = await getExpenses(appliedFilters);
                 setExpenses(data);
 
-                // Obtener categorías únicas para el dropdown
-                const uniqueCategories = [...new Set(data.map((exp) => exp.category))];
+                const uniqueCategories = [
+                    ...new Set(data.map((exp) => exp.category)),
+                ];
                 setCategories(uniqueCategories);
             } catch (error) {
                 console.error(error.message);
@@ -52,14 +56,12 @@ const Dashboard = () => {
         [user]
     );
 
-
     useEffect(() => {
         fetchExpenses({});
     }, [fetchExpenses]);
 
-
+    // CRUD 
     const handleEdit = (expense) => setExpenseToEdit(expense);
-
 
     const handleDelete = async (id) => {
         try {
@@ -90,6 +92,16 @@ const Dashboard = () => {
         fetchExpenses(newFilters);
     };
 
+    // FINANCIAL CALCULATION
+    const income =
+        expenses.find((exp) => exp.category === "Sueldo")?.amount || 0;
+
+    const totalExpenses = expenses
+        .filter((exp) => exp.category !== "Sueldo")
+        .reduce((sum, exp) => sum + exp.amount, 0);
+
+    const monthlySavings = Math.max(income - totalExpenses, 0);
+
     return (
         <Container maxWidth="sm" sx={{ py: 3 }}>
             {/* HEADER */}
@@ -106,6 +118,23 @@ const Dashboard = () => {
             <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
                 <MonthlySummary expenses={expenses} />
             </Paper>
+
+            {/* CTA TO PIGGY BANK */}
+            <Box mb={3}>
+                <Button
+                    fullWidth
+                    variant="contained"
+                    size="large"
+                    sx={{ borderRadius: 3 }}
+                    onClick={() =>
+                        navigate("/piggy-bank", {
+                            state: { monthlySavings },
+                        })
+                    }
+                >
+                    Ir a la hucha 🐷
+                </Button>
+            </Box>
 
             {/* FILTERS */}
             <Paper sx={{ p: 2, mb: 3 }} elevation={2}>

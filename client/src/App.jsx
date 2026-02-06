@@ -5,6 +5,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Expenses from "./pages/Expenses";
+import PiggyBank from "./pages/PiggyBank";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
@@ -31,6 +32,7 @@ function App() {
             >
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/expenses" element={<Expenses />} />
+                <Route path="/piggybank" element={<PiggyBank />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
