@@ -30,7 +30,6 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [bubbles, setBubbles] = useState([]);
 
-    // Crear burbujas iniciales solo una vez
     useEffect(() => {
         const initialBubbles = Array.from({ length: 12 }, () => ({
             symbol: symbols[Math.floor(Math.random() * symbols.length)],
@@ -39,7 +38,7 @@ const Login = () => {
             duration: Math.random() * 15 + 10,
             opacity: Math.random() * 0.5 + 0.3,
             rotate: Math.random() * 360,
-            startBottom: -(Math.random() * 100 + 50), // inicia fuera de la vista
+            startBottom: -(Math.random() * 100 + 50),
             delay: Math.random() * 5,
         }));
         setBubbles(initialBubbles);
@@ -96,7 +95,7 @@ const Login = () => {
                                 : `rgba(255,255,255,${b.opacity})`,
                         transform: `rotate(${b.rotate}deg)`,
                         animation: `bubbleMove ${b.duration}s linear infinite`,
-                        animationDelay: `${b.delay}s`,
+                        animationDelay: `${Math.random() * 1}s`,
                     }}
                 >
                     {b.symbol}
@@ -126,7 +125,7 @@ const Login = () => {
                 >
                     <Stack spacing={isLandscape ? 2 : 3}>
                         {/* HEADER */}
-                        <Stack spacing={1.2} alignItems="center">
+                        <Stack spacing={3} alignItems="center">
                             <Box
                                 component="img"
                                 src="/icons/image-app.png"
