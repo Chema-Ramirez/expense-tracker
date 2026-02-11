@@ -22,7 +22,6 @@ const Login = () => {
     const { login } = useContext(AuthContext);
     const { mode } = useContext(ThemeContext);
     const navigate = useNavigate();
-
     const isLandscape = useMediaQuery("(orientation: landscape)");
 
     const [form, setForm] = useState({ email: "", password: "" });
@@ -89,13 +88,10 @@ const Login = () => {
                         left: `${b.left}%`,
                         bottom: `${b.startBottom}px`,
                         fontSize: b.size,
-                        color:
-                            mode === "light"
-                                ? `rgba(255,255,255,${b.opacity})`
-                                : `rgba(255,255,255,${b.opacity})`,
+                        color: `rgba(255,255,255,${b.opacity})`,
                         transform: `rotate(${b.rotate}deg)`,
                         animation: `bubbleMove ${b.duration}s linear infinite`,
-                        animationDelay: `${Math.random() * 1}s`,
+                        animationDelay: `${b.delay}s`,
                     }}
                 >
                     {b.symbol}
@@ -138,7 +134,6 @@ const Login = () => {
                                     backgroundColor: "white",
                                 }}
                             />
-
                             <Typography
                                 variant={isLandscape ? "h5" : "h3"}
                                 fontWeight={800}
@@ -146,7 +141,6 @@ const Login = () => {
                             >
                                 BitOink
                             </Typography>
-
                             {!isLandscape && (
                                 <Typography
                                     variant="body1"
@@ -163,66 +157,39 @@ const Login = () => {
                         {/* FORM */}
                         <Box component="form" onSubmit={handleSubmit}>
                             <Stack spacing={2}>
-                                <TextField
-                                    label="Email"
-                                    name="email"
-                                    value={form.email}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    variant="outlined"
-                                    InputProps={{
-                                        sx: {
-                                            borderRadius: 2,
-                                            backgroundColor: mode === "light" ? "#fff" : "#222",
-                                            color: mode === "light" ? "#111" : "#fff",
-                                        },
-                                    }}
-                                    InputLabelProps={{
-                                        sx: {
-                                            color: mode === "light" ? "#555" : "#ccc",
-                                            fontWeight: 600,
-                                            "&.Mui-focused": { color: "#fbff00", fontWeight: 700 },
-                                            transition: "0.3s",
-                                        },
-                                    }}
-                                    sx={{
-                                        "& .MuiOutlinedInput-root.Mui-focused fieldset": {
-                                            borderColor: "#d8c72c",
-                                            boxShadow: "0 0 0 2px rgba(255, 238, 0, 0.3)",
-                                        },
-                                    }}
-                                />
-
-                                <TextField
-                                    label="Contraseña"
-                                    name="password"
-                                    type="password"
-                                    value={form.password}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    variant="outlined"
-                                    InputProps={{
-                                        sx: {
-                                            borderRadius: 2,
-                                            backgroundColor: mode === "light" ? "#fff" : "#222",
-                                            color: mode === "light" ? "#111" : "#fff",
-                                        },
-                                    }}
-                                    InputLabelProps={{
-                                        sx: {
-                                            color: mode === "light" ? "#555" : "#ccc",
-                                            fontWeight: 600,
-                                            "&.Mui-focused": { color: "#fbff00", fontWeight: 700 },
-                                            transition: "0.3s",
-                                        },
-                                    }}
-                                    sx={{
-                                        "& .MuiOutlinedInput-root.Mui-focused fieldset": {
-                                            borderColor: "#d8c72c",
-                                            boxShadow: "0 0 0 2px rgba(255, 238, 0, 0.3)",
-                                        },
-                                    }}
-                                />
+                                {["email", "password"].map((field) => (
+                                    <TextField
+                                        key={field}
+                                        label={field === "email" ? "Email" : "Contraseña"}
+                                        name={field}
+                                        type={field === "password" ? "password" : "text"}
+                                        value={form[field]}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        variant="outlined"
+                                        InputProps={{
+                                            sx: {
+                                                borderRadius: 2,
+                                                backgroundColor: mode === "light" ? "#fff" : "#222",
+                                                color: mode === "light" ? "#111" : "#fff",
+                                            },
+                                        }}
+                                        InputLabelProps={{
+                                            sx: {
+                                                color: mode === "light" ? "#555" : "#ccc",
+                                                fontWeight: 600,
+                                                "&.Mui-focused": { color: "#fbff00", fontWeight: 700 },
+                                                transition: "0.3s",
+                                            },
+                                        }}
+                                        sx={{
+                                            "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                                                borderColor: "#d8c72c",
+                                                boxShadow: "0 0 0 2px rgba(255, 238, 0, 0.3)",
+                                            },
+                                        }}
+                                    />
+                                ))}
 
                                 <Button
                                     type="submit"

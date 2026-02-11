@@ -28,6 +28,7 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const [bubbles, setBubbles] = useState([]);
 
+    // BURBUJAS UNA VEZ
     useEffect(() => {
         const initialBubbles = Array.from({ length: 12 }, () => ({
             symbol: symbols[Math.floor(Math.random() * symbols.length)],
@@ -36,6 +37,7 @@ const Register = () => {
             duration: Math.random() * 15 + 10,
             opacity: Math.random() * 0.5 + 0.3,
             rotate: Math.random() * 360,
+            delay: Math.random() * 5,
         }));
         setBubbles(initialBubbles);
     }, []);
@@ -85,13 +87,10 @@ const Register = () => {
                         left: `${b.left}%`,
                         bottom: "-50px",
                         fontSize: b.size,
-                        color:
-                            mode === "light"
-                                ? `rgba(255,255,255,${b.opacity})`
-                                : `rgba(255,255,255,${b.opacity})`,
+                        color: `rgba(255,255,255,${b.opacity})`,
                         transform: `rotate(${b.rotate}deg)`,
                         animation: `bubbleMove ${b.duration}s linear infinite`,
-                        animationDelay: `${Math.random() * 1}s`,
+                        animationDelay: `${b.delay}s`,
                     }}
                 >
                     {b.symbol}
@@ -121,11 +120,7 @@ const Register = () => {
                 >
                     <Stack spacing={isLandscape ? 2 : 3}>
                         {/* HEADER */}
-                        <Stack
-                            spacing={3}
-                            alignItems="center"
-                            sx={{ mb: 4 }}
-                        >
+                        <Stack spacing={3} alignItems="center" sx={{ mb: 4 }}>
                             <Box
                                 component="img"
                                 src="/icons/image-app.png"
@@ -156,84 +151,38 @@ const Register = () => {
                             )}
                         </Stack>
 
-
                         {error && <Alert severity="error">{error}</Alert>}
 
                         {/* FORM */}
                         <Box component="form" onSubmit={handleSubmit}>
                             <Stack spacing={2}>
-                                <TextField
-                                    label="Nombre"
-                                    name="name"
-                                    value={form.name}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    variant="outlined"
-                                    InputProps={{
-                                        sx: {
-                                            borderRadius: 2,
-                                            backgroundColor: mode === "light" ? "#fff" : "#222",
-                                            color: mode === "light" ? "#111" : "#fff",
-                                        },
-                                    }}
-                                    InputLabelProps={{
-                                        sx: {
-                                            color: mode === "light" ? "#555" : "#ccc",
-                                            "&.Mui-focused": { color: "#fbff00" },
-                                            fontWeight: 600,
-                                            transition: "0.3s",
-                                        },
-                                    }}
-                                />
-
-                                <TextField
-                                    label="Email"
-                                    name="email"
-                                    value={form.email}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    variant="outlined"
-                                    InputProps={{
-                                        sx: {
-                                            borderRadius: 2,
-                                            backgroundColor: mode === "light" ? "#fff" : "#222",
-                                            color: mode === "light" ? "#111" : "#fff",
-                                        },
-                                    }}
-                                    InputLabelProps={{
-                                        sx: {
-                                            color: mode === "light" ? "#555" : "#ccc",
-                                            "&.Mui-focused": { color: "#fbff00" },
-                                            fontWeight: 600,
-                                            transition: "0.3s",
-                                        },
-                                    }}
-                                />
-
-                                <TextField
-                                    label="Contraseña"
-                                    name="password"
-                                    type="password"
-                                    value={form.password}
-                                    onChange={handleChange}
-                                    fullWidth
-                                    variant="outlined"
-                                    InputProps={{
-                                        sx: {
-                                            borderRadius: 2,
-                                            backgroundColor: mode === "light" ? "#fff" : "#222",
-                                            color: mode === "light" ? "#111" : "#fff",
-                                        },
-                                    }}
-                                    InputLabelProps={{
-                                        sx: {
-                                            color: mode === "light" ? "#555" : "#ccc",
-                                            "&.Mui-focused": { color: "#0B3D2E" },
-                                            fontWeight: 600,
-                                            transition: "0.3s",
-                                        },
-                                    }}
-                                />
+                                {["name", "email", "password"].map((field) => (
+                                    <TextField
+                                        key={field}
+                                        label={field === "name" ? "Nombre" : field === "email" ? "Email" : "Contraseña"}
+                                        name={field}
+                                        type={field === "password" ? "password" : "text"}
+                                        value={form[field]}
+                                        onChange={handleChange}
+                                        fullWidth
+                                        variant="outlined"
+                                        InputProps={{
+                                            sx: {
+                                                borderRadius: 2,
+                                                backgroundColor: mode === "light" ? "#fff" : "#222",
+                                                color: mode === "light" ? "#111" : "#fff",
+                                            },
+                                        }}
+                                        InputLabelProps={{
+                                            sx: {
+                                                color: mode === "light" ? "#555" : "#ccc",
+                                                "&.Mui-focused": { color: field === "password" ? "#0B3D2E" : "#fbff00" },
+                                                fontWeight: 600,
+                                                transition: "0.3s",
+                                            },
+                                        }}
+                                    />
+                                ))}
 
                                 <Button
                                     type="submit"
@@ -253,8 +202,11 @@ const Register = () => {
                             </Stack>
                         </Box>
 
-
-                        <Typography variant="body2" textAlign="center" color="rgba(255,255,255,0.9)">
+                        <Typography
+                            variant="body2"
+                            textAlign="center"
+                            color="rgba(255,255,255,0.9)"
+                        >
                             ¿Ya tienes cuenta?{" "}
                             <Link component={RouterLink} to="/login" sx={{ color: "white", fontWeight: 600 }}>
                                 Inicia sesión
@@ -264,15 +216,13 @@ const Register = () => {
                 </Box>
             </Box>
 
-            <style>
-                {`
+            <style>{`
           @keyframes bubbleMove {
             0% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-50vh) rotate(180deg); opacity: 0.6; }
-            100% { transform: translateY(-100vh) rotate(360deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
           }
-        `}
-            </style>
+        `}</style>
         </Box>
     );
 };
