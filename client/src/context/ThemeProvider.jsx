@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
     ThemeProvider as MuiThemeProvider,
     CssBaseline,
@@ -15,7 +15,7 @@ export const ThemeProvider = ({ children }) => {
         setMode((prev) => (prev === "dark" ? "light" : "dark"));
     }, []);
 
-    useMemo(() => {
+    useEffect(() => {
         localStorage.setItem("theme", mode);
     }, [mode]);
 

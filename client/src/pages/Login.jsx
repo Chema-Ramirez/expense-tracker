@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import {
     Box,
     Button,
@@ -11,15 +11,16 @@ import {
     useMediaQuery,
 } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GoogleIcon from "@mui/icons-material/Google";
-import EuroSymbolIcon from "@mui/icons-material/EuroSymbol";
 import { AuthContext } from "../context/AuthContext";
 import { loginUser } from "../services/authService";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { ThemeContext } from "../context/ThemeContext";
+
+const symbols = ["€", "$", "€", "$", "€", "$", "€"];
 
 const Login = () => {
     const { login } = useContext(AuthContext);
+    const { mode } = useContext(ThemeContext);
     const navigate = useNavigate();
 
     const isLandscape = useMediaQuery("(orientation: landscape)");
@@ -27,6 +28,22 @@ const Login = () => {
     const [form, setForm] = useState({ email: "", password: "" });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [bubbles, setBubbles] = useState([]);
+
+    // Crear burbujas iniciales solo una vez
+    useEffect(() => {
+        const initialBubbles = Array.from({ length: 12 }, () => ({
+            symbol: symbols[Math.floor(Math.random() * symbols.length)],
+            size: Math.random() * 40 + 20,
+            left: Math.random() * 100,
+            duration: Math.random() * 15 + 10,
+            opacity: Math.random() * 0.5 + 0.3,
+            rotate: Math.random() * 360,
+            startBottom: -(Math.random() * 100 + 50), // inicia fuera de la vista
+            delay: Math.random() * 5,
+        }));
+        setBubbles(initialBubbles);
+    }, []);
 
     const handleChange = (e) =>
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -51,35 +68,40 @@ const Login = () => {
         <Box
             sx={{
                 minHeight: "100dvh",
-                background: "linear-gradient(180deg, #5ED1B2 0%, #113d31 100%)",
                 position: "relative",
                 overflow: "hidden",
                 display: "flex",
                 flexDirection: "column",
                 pt: "env(safe-area-inset-top)",
                 pb: "env(safe-area-inset-bottom)",
+                background: (theme) =>
+                    theme.palette.mode === "light"
+                        ? "linear-gradient(180deg, #1FBF9F 0%, #0B3D2E 100%)"
+                        : "linear-gradient(180deg, #0B1F1A 0%, #04110E 100%)",
             }}
         >
-            {/* Símbolo € */}
-            <Box
-                sx={{
-                    position: "absolute",
-                    inset: 0,
-                    zIndex: 0,
-                    pointerEvents: "none",
-                }}
-            >
-                <EuroSymbolIcon
+            {/* BURBUJAS */}
+            {bubbles.map((b, i) => (
+                <Typography
+                    key={i}
+                    component="span"
                     sx={{
                         position: "absolute",
-                        fontSize: isLandscape ? 260 : 420,
-                        color: "rgba(0, 48, 25, 0.08)",
-                        top: "-10%",
-                        right: "-20%",
-                        transform: "rotate(-15deg)",
+                        left: `${b.left}%`,
+                        bottom: `${b.startBottom}px`,
+                        fontSize: b.size,
+                        color:
+                            mode === "light"
+                                ? `rgba(255,255,255,${b.opacity})`
+                                : `rgba(255,255,255,${b.opacity})`,
+                        transform: `rotate(${b.rotate}deg)`,
+                        animation: `bubbleMove ${b.duration}s linear infinite`,
+                        animationDelay: `${b.delay}s`,
                     }}
-                />
-            </Box>
+                >
+                    {b.symbol}
+                </Typography>
+            ))}
 
             {/* CONTENIDO */}
             <Box
@@ -148,10 +170,26 @@ const Login = () => {
                                     value={form.email}
                                     onChange={handleChange}
                                     fullWidth
+                                    variant="outlined"
                                     InputProps={{
                                         sx: {
                                             borderRadius: 2,
-                                            backgroundColor: "white",
+                                            backgroundColor: mode === "light" ? "#fff" : "#222",
+                                            color: mode === "light" ? "#111" : "#fff",
+                                        },
+                                    }}
+                                    InputLabelProps={{
+                                        sx: {
+                                            color: mode === "light" ? "#555" : "#ccc",
+                                            fontWeight: 600,
+                                            "&.Mui-focused": { color: "#fbff00", fontWeight: 700 },
+                                            transition: "0.3s",
+                                        },
+                                    }}
+                                    sx={{
+                                        "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                                            borderColor: "#d8c72c",
+                                            boxShadow: "0 0 0 2px rgba(255, 238, 0, 0.3)",
                                         },
                                     }}
                                 />
@@ -163,10 +201,26 @@ const Login = () => {
                                     value={form.password}
                                     onChange={handleChange}
                                     fullWidth
+                                    variant="outlined"
                                     InputProps={{
                                         sx: {
                                             borderRadius: 2,
-                                            backgroundColor: "white",
+                                            backgroundColor: mode === "light" ? "#fff" : "#222",
+                                            color: mode === "light" ? "#111" : "#fff",
+                                        },
+                                    }}
+                                    InputLabelProps={{
+                                        sx: {
+                                            color: mode === "light" ? "#555" : "#ccc",
+                                            fontWeight: 600,
+                                            "&.Mui-focused": { color: "#fbff00", fontWeight: 700 },
+                                            transition: "0.3s",
+                                        },
+                                    }}
+                                    sx={{
+                                        "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                                            borderColor: "#d8c72c",
+                                            boxShadow: "0 0 0 2px rgba(255, 238, 0, 0.3)",
                                         },
                                     }}
                                 />
@@ -181,38 +235,38 @@ const Login = () => {
                                         py: 1.2,
                                         backgroundColor: "white",
                                         color: "#3BBF9B",
-                                        fontWeight: 600,
+                                        fontWeight: 800,
                                     }}
                                 >
-                                    {loading ? (
-                                        <CircularProgress size={24} />
-                                    ) : (
-                                        "Entrar"
-                                    )}
+                                    {loading ? <CircularProgress size={24} /> : "Entrar"}
                                 </Button>
                             </Stack>
                         </Box>
 
-                        <Divider sx={{ color: "white", opacity: 0.6 }}>
+                        <Divider sx={{ color: "white", opacity: 0.8 }}>
                             o continúa con
                         </Divider>
 
-                        {/* OAUTH */}
                         <Stack spacing={1}>
                             <Button
                                 variant="outlined"
                                 fullWidth
-                                startIcon={<GoogleIcon />}
-                                sx={{ borderColor: "white", color: "white" }}
+                                sx={{
+                                    borderColor: "white",
+                                    color: "white",
+                                    textTransform: "none",
+                                }}
                             >
                                 Google
                             </Button>
-
                             <Button
                                 variant="outlined"
                                 fullWidth
-                                startIcon={<GitHubIcon />}
-                                sx={{ borderColor: "white", color: "white" }}
+                                sx={{
+                                    borderColor: "white",
+                                    color: "white",
+                                    textTransform: "none",
+                                }}
                             >
                                 GitHub
                             </Button>
@@ -235,6 +289,15 @@ const Login = () => {
                     </Stack>
                 </Box>
             </Box>
+
+            {/* ANIMACIÓN BURBUJAS */}
+            <style>{`
+        @keyframes bubbleMove {
+          0% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-50vh) rotate(180deg); opacity: 0.6; }
+          100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+      `}</style>
         </Box>
     );
 };

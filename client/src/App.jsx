@@ -15,11 +15,13 @@ import DashboardLayout from "./components/DashboardLayout";
 function App() {
     return (
         <Routes>
-            {/* PUBLICO */}
+            {/* LOGIN Y REGISTER  */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            {/* PÚBLICO */}
             <Route element={<Layout />}>
                 <Route index element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
             </Route>
 
             {/* PRIVADO */}
@@ -35,6 +37,7 @@ function App() {
                 <Route path="/piggybank" element={<PiggyBank />} />
             </Route>
 
+            {/* ERROR 404 */}
             <Route path="*" element={<NotFound />} />
         </Routes>
     );
