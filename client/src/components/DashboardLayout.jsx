@@ -52,7 +52,7 @@ const DashboardLayout = () => {
                 {user && (
                     <ListItemButton
                         onClick={handleLogout}
-                        sx={{ mt: 2, bgcolor: "#e74c3c", color: "#fff", borderRadius: 1 }}
+                        sx={{ mt: 2, bgcolor: "#000000", color: "#fff", borderRadius: 1 }}
                     >
                         <ListItemText primary="Cerrar sesión" />
                     </ListItemButton>

@@ -1,10 +1,8 @@
-const User = require("../models/User")
+const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-
-
-//REGISTER
+// REGISTER
 const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -27,12 +25,9 @@ const register = async (req, res) => {
             password: hashedPassword,
         });
 
-        // GENERAR TOKEN
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRES_IN,
+        });
 
         res.status(201).json({
             message: "User created successfully",
@@ -49,10 +44,7 @@ const register = async (req, res) => {
     }
 };
 
-
-
-
-//LOGIN
+// LOGIN
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -71,13 +63,9 @@ const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-
-        //TOKEN
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRES_IN,
+        });
 
         res.json({
             message: "Successful login",
@@ -85,15 +73,22 @@ const login = async (req, res) => {
             user: {
                 id: user._id,
                 name: user.name,
-                email: user.email
-            }
+                email: user.email,
+            },
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error" });
     }
 };
 
+// GET CURRENT USER
+const getCurrentUser = async (req, res) => {
+    try {
+        res.json({ user: req.user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
 
-module.exports = { register, login }
-
-
+module.exports = { register, login, getCurrentUser };

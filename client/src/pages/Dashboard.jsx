@@ -1,22 +1,11 @@
-import { useEffect, useState, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-    Container,
-    Typography,
-    Box,
-    Paper,
-    CircularProgress,
-    Divider,
-    Button,
-} from "@mui/material";
+import { Container, Typography, Box, Paper, CircularProgress, Divider, IconButton } from "@mui/material";
 
-import { AuthContext } from "../context/AuthContext";
-import {
-    getExpenses,
-    createExpense,
-    updateExpense,
-    deleteExpense,
-} from "../services/expenseServices";
+import { useAuth } from "../hooks/useAuth";
+import { useTheme } from "../hooks/useTheme";
+import { useExpenses } from "../hooks/useExpenses";
+import { useFilters } from "../hooks/useFilters";
+import { useMonthlySavings } from "../hooks/useMonthlySavings";
 
 import ExpenseList from "../components/ExpenseList";
 import ExpenseFilters from "../components/ExpenseFilters";
@@ -24,162 +13,59 @@ import ExpenseForm from "../components/ExpenseForm";
 import MonthlySummary from "../components/MonthlySummary";
 
 const Dashboard = () => {
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
+    const { mode } = useTheme();
     const navigate = useNavigate();
 
-    const [expenses, setExpenses] = useState([]);
-    const [filters, setFilters] = useState({});
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [expenseToEdit, setExpenseToEdit] = useState(null);
+    const { expenses, categories, loading, expenseToEdit, handleEdit, handleDelete, handleFormSubmit, setExpenseToEdit } = useExpenses();
+    const { filters, applyFilters } = useFilters();
+    const monthlySavings = useMonthlySavings(expenses);
 
-    // FETCH EXPENSES
-    const fetchExpenses = useCallback(
-        async (appliedFilters = {}) => {
-            if (!user) return;
-
-            setLoading(true);
-            try {
-                const data = await getExpenses(appliedFilters);
-                setExpenses(data);
-
-                const uniqueCategories = [
-                    ...new Set(data.map((exp) => exp.category)),
-                ];
-                setCategories(uniqueCategories);
-            } catch (error) {
-                console.error(error.message);
-            } finally {
-                setLoading(false);
-            }
-        },
-        [user]
-    );
-
-    useEffect(() => {
-        fetchExpenses({});
-    }, [fetchExpenses]);
-
-    // CRUD 
-    const handleEdit = (expense) => setExpenseToEdit(expense);
-
-    const handleDelete = async (id) => {
-        try {
-            await deleteExpense(id);
-            fetchExpenses(filters);
-        } catch (error) {
-            alert(error.message);
-        }
-    };
-
-    const handleFormSubmit = async (expenseData) => {
-        try {
-            if (expenseToEdit) {
-                await updateExpense(expenseToEdit._id, expenseData);
-            } else {
-                await createExpense(expenseData);
-            }
-
-            setExpenseToEdit(null);
-            fetchExpenses(filters);
-        } catch (error) {
-            alert(error.message);
-        }
-    };
-
-    const handleApplyFilters = (newFilters) => {
-        setFilters(newFilters);
-        fetchExpenses(newFilters);
-    };
-
-    // FINANCIAL CALCULATION
-    const income =
-        expenses.find((exp) => exp.category === "Sueldo")?.amount || 0;
-
-    const totalExpenses = expenses
-        .filter((exp) => exp.category !== "Sueldo")
-        .reduce((sum, exp) => sum + exp.amount, 0);
-
-    const monthlySavings = Math.max(income - totalExpenses, 0);
+    const navItems = [
+        { label: "Inicio", icon: "/icons/home.png", action: () => navigate("/dashboard") },
+        { label: "Hucha", icon: "/icons/192.png", action: () => navigate("/piggybank", { state: { monthlySavings } }) },
+        { label: "Perfil", icon: "/icons/user.png", action: () => navigate("/profile") },
+        { label: "Ajustes", icon: "/icons/config.png", action: () => navigate("/settings") },
+    ];
 
     return (
-        <Container maxWidth="sm" sx={{ py: 3 }}>
-            {/* HEADER */}
-            <Box mb={3} textAlign="center">
-                <Typography variant="h4" fontWeight={700}>
-                    Control de Gastos
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                    Bienvenido, <strong>{user?.name}</strong> 👋
-                </Typography>
+        <Box sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column", backgroundColor: mode === "light" ? "#f5f5f5" : "#121212", color: mode === "light" ? "#111" : "#fff", pb: "70px" }}>
+            <Container maxWidth="sm" sx={{ py: 3, flex: 1 }}>
+                <Box mb={3} textAlign="center">
+                    <Typography variant="h4" fontWeight={700}>Control de Gastos</Typography>
+                    <Typography variant="body1" color={mode === "light" ? "text.secondary" : "#ccc"}>Bienvenido, <strong>{user?.name}</strong> 👋</Typography>
+                </Box>
+
+                <Paper sx={{ p: 2, mb: 3, backgroundColor: mode === "light" ? "#fff" : "#1e1e1e" }} elevation={3}>
+                    <MonthlySummary expenses={expenses} />
+                </Paper>
+
+                <Paper sx={{ p: 2, mb: 3, backgroundColor: mode === "light" ? "#fff" : "#1e1e1e" }} elevation={2}>
+                    <ExpenseFilters filters={filters} setFilters={applyFilters} categories={categories} />
+                </Paper>
+
+                <Paper sx={{ p: 2, mb: 3, backgroundColor: mode === "light" ? "#fff" : "#1e1e1e" }} elevation={2}>
+                    <Typography variant="h6" gutterBottom>{expenseToEdit ? "Editar gasto" : "Nuevo gasto"}</Typography>
+                    <ExpenseForm expenseToEdit={expenseToEdit} onSubmit={handleFormSubmit} onCancel={() => setExpenseToEdit(null)} categories={categories} />
+                </Paper>
+
+                <Paper sx={{ p: 2, backgroundColor: mode === "light" ? "#fff" : "#1e1e1e" }} elevation={2}>
+                    <Typography variant="h6" gutterBottom>Gastos recientes</Typography>
+                    <Divider sx={{ mb: 2 }} />
+                    {loading ? <Box display="flex" justifyContent="center" py={3}><CircularProgress /></Box>
+                        : <ExpenseList expenses={expenses} onEdit={handleEdit} onDelete={handleDelete} />}
+                </Paper>
+            </Container>
+
+            <Box sx={{ position: "fixed", bottom: 0, left: 0, width: "100%", height: 70, backgroundColor: mode === "light" ? "#fff" : "#1e1e1e", borderTop: `1px solid ${mode === "light" ? "#ddd" : "#333"}`, display: "flex", justifyContent: "space-around", alignItems: "center", zIndex: 10 }}>
+                {navItems.map((item, idx) => (
+                    <IconButton key={idx} onClick={item.action} sx={{ flexDirection: "column", color: mode === "light" ? "#111" : "#fff" }}>
+                        <Box component="img" src={item.icon} alt={item.label} sx={{ width: 24, height: 24, mb: 0.5 }} />
+                        <Typography variant="caption">{item.label}</Typography>
+                    </IconButton>
+                ))}
             </Box>
-
-            {/* SUMMARY */}
-            <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
-                <MonthlySummary expenses={expenses} />
-            </Paper>
-
-            {/* CTA TO PIGGY BANK */}
-            <Box mb={3}>
-                <Button
-                    fullWidth
-                    variant="contained"
-                    size="large"
-                    sx={{ borderRadius: 3 }}
-                    onClick={() =>
-                        navigate("/piggy-bank", {
-                            state: { monthlySavings },
-                        })
-                    }
-                >
-                    Ir a la hucha 🐷
-                </Button>
-            </Box>
-
-            {/* FILTERS */}
-            <Paper sx={{ p: 2, mb: 3 }} elevation={2}>
-                <ExpenseFilters
-                    filters={filters}
-                    setFilters={handleApplyFilters}
-                    categories={categories}
-                />
-            </Paper>
-
-            {/* FORM */}
-            <Paper sx={{ p: 2, mb: 3 }} elevation={2}>
-                <Typography variant="h6" gutterBottom>
-                    {expenseToEdit ? "Editar gasto" : "Nuevo gasto"}
-                </Typography>
-
-                <ExpenseForm
-                    expenseToEdit={expenseToEdit}
-                    onSubmit={handleFormSubmit}
-                    onCancel={() => setExpenseToEdit(null)}
-                    categories={categories}
-                />
-            </Paper>
-
-            {/* LIST */}
-            <Paper sx={{ p: 2 }} elevation={2}>
-                <Typography variant="h6" gutterBottom>
-                    Gastos recientes
-                </Typography>
-
-                <Divider sx={{ mb: 2 }} />
-
-                {loading ? (
-                    <Box display="flex" justifyContent="center" py={3}>
-                        <CircularProgress />
-                    </Box>
-                ) : (
-                    <ExpenseList
-                        expenses={expenses}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                    />
-                )}
-            </Paper>
-        </Container>
+        </Box>
     );
 };
 
