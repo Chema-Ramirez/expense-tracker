@@ -1,133 +1,64 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
-import {
-    AppBar,
-    Toolbar,
-    IconButton,
-    Typography,
-    Drawer,
-    List,
-    ListItemButton,
-    ListItemText,
-    Box,
-    useTheme,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
-import { AuthContext } from "../context/AuthContext";
-import { ThemeContext } from "../context/ThemeContext";
+import { Outlet, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { Box, IconButton, Typography } from "@mui/material";
 
-const drawerWidth = 240;
+import { AuthContext } from "../context/AuthContext";
 
 const DashboardLayout = () => {
-    const { user, logout } = useContext(AuthContext);
-    const { mode, toggleTheme } = useContext(ThemeContext);
+    const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
-    const theme = useTheme();
 
-    const [mobileOpen, setMobileOpen] = useState(false);
-    const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+    const navItems = [
+        { label: "Inicio", icon: "/icons/home.png", to: "/dashboard" },
+        { label: "Gastos", icon: "/icons/expenses.png", to: "/expenses" },
+        { label: "Hucha", icon: "/icons/192.png", to: "/piggybank" },
+        { label: "Perfil", icon: "/icons/user.png", to: "/profile" },
+        { label: "Ajustes", icon: "/icons/config.png", to: "/settings" },
+    ];
 
     const handleLogout = () => {
         logout();
         navigate("/login");
     };
 
-    const drawerContent = (
-        <Box sx={{ width: drawerWidth, p: 2 }}>
-            <Typography variant="h6" mb={2}>
-                💰 Mi Banco
-            </Typography>
-            <List>
-                <ListItemButton component={Link} to="/dashboard">
-                    <ListItemText primary="Dashboard" />
-                </ListItemButton>
-                <ListItemButton component={Link} to="/expenses">
-                    <ListItemText primary="Gastos" />
-                </ListItemButton>
-                <ListItemButton component={Link} to="/piggybank">
-                    <ListItemText primary="Hucha" />
-                </ListItemButton>
-                {user && (
-                    <ListItemButton
-                        onClick={handleLogout}
-                        sx={{ mt: 2, bgcolor: "#000000", color: "#fff", borderRadius: 1 }}
-                    >
-                        <ListItemText primary="Cerrar sesión" />
-                    </ListItemButton>
-                )}
-            </List>
-
-
-        </Box>
-    );
-
     return (
-        <Box sx={{ display: "flex" }}>
-            {/* APPBAR */}
-            <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: "none" } }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                        Control Gastos
-                    </Typography>
-                    <IconButton color="inherit" onClick={toggleTheme}>
-                        {mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
-
-            {/* DRAWER */}
-            <Box
-                component="nav"
-                sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-            >
-                {/* MOBILE */}
-                <Drawer
-                    variant="temporary"
-                    open={mobileOpen}
-                    onClose={handleDrawerToggle}
-                    ModalProps={{ keepMounted: true }}
-                    sx={{
-                        display: { xs: "block", sm: "none" },
-                        "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
-                    }}
-                >
-                    {drawerContent}
-                </Drawer>
-
-                {/* DESKTOP */}
-                <Drawer
-                    variant="permanent"
-                    sx={{
-                        display: { xs: "none", sm: "block" },
-                        "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
-                    }}
-                    open
-                >
-                    {drawerContent}
-                </Drawer>
+        <Box sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column", pb: "80px", bgcolor: "background.default" }}>
+            {/* MAIN CONTENT */}
+            <Box sx={{ flex: 1, p: 2 }}>
+                <Outlet />
             </Box>
 
-            {/* MAIN CONTENT */}
+            {/* FOOTER NAVIGATION */}
             <Box
-                component="main"
                 sx={{
-                    flexGrow: 1,
-                    p: 3,
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    mt: 8,
+                    position: "fixed",
+                    bottom: 0,
+                    left: 0,
+                    width: "100%",
+                    height: 70,
+                    borderTop: "1px solid #ddd",
+                    bgcolor: "background.paper",
+                    display: "flex",
+                    justifyContent: "space-around",
+                    alignItems: "center",
+                    zIndex: 10,
                 }}
             >
-                <Outlet />
+                {navItems.map((item, idx) => (
+                    <IconButton
+                        key={idx}
+                        onClick={() => navigate(item.to)}
+                        sx={{ flexDirection: "column", color: "text.primary" }}
+                    >
+                        <Box component="img" src={item.icon} alt={item.label} sx={{ width: 28, height: 28, mb: 0.5 }} />
+                        <Typography variant="caption">{item.label}</Typography>
+                    </IconButton>
+                ))}
+
+                <IconButton onClick={handleLogout} sx={{ flexDirection: "column", color: "#f44336" }}>
+                    <Box component="img" src="/icons/logout.png" alt="Salir" sx={{ width: 28, height: 28, mb: 0.5 }} />
+                    <Typography variant="caption">Salir</Typography>
+                </IconButton>
             </Box>
         </Box>
     );

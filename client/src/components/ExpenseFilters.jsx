@@ -1,14 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, TextField, MenuItem, Button } from "@mui/material";
 
 const categoriesList = ["Todos", "Sueldo", "Transporte", "Entretenimiento", "Salud", "Comida", "Otros"];
 
 const ExpenseFilters = ({ filters, setFilters }) => {
     const [localFilters, setLocalFilters] = useState(filters);
-
-    useEffect(() => {
-        setLocalFilters(filters);
-    }, [filters]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;

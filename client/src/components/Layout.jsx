@@ -16,6 +16,7 @@ const Layout = () => {
 
     return (
         <>
+            {/* Top AppBar */}
             <AppBar
                 position="static"
                 elevation={0}
@@ -29,7 +30,7 @@ const Layout = () => {
                 <Toolbar
                     sx={{
                         justifyContent: "space-between",
-                        maxWidth: "sm",
+                        maxWidth: "md",
                         width: "100%",
                         mx: "auto",
                     }}
@@ -46,12 +47,14 @@ const Layout = () => {
                         </Typography>
                     </Box>
 
+                    {/* THEME */}
                     <IconButton onClick={toggleTheme} color="inherit">
                         {theme === "dark" ? <Brightness7 /> : <Brightness4 />}
                     </IconButton>
                 </Toolbar>
             </AppBar>
 
+            {/* MAIN CONTENT */}
             <Box
                 sx={{
                     minHeight: "100vh",
@@ -59,7 +62,7 @@ const Layout = () => {
                     py: 3,
                 }}
             >
-                <Container maxWidth="sm">
+                <Container maxWidth="md">
                     <Outlet />
                 </Container>
             </Box>

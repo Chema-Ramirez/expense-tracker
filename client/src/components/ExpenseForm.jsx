@@ -1,14 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, TextField, Button, MenuItem } from "@mui/material";
 
-const categoriesList = [
-    "Sueldo",
-    "Transporte",
-    "Entretenimiento",
-    "Salud",
-    "Comida",
-    "Otros",
-];
+const categoriesList = ["Sueldo", "Transporte", "Entretenimiento", "Salud", "Comida", "Otros"];
 
 const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }) => {
     const [form, setForm] = useState(() => ({
@@ -19,16 +12,6 @@ const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }) => {
     }));
 
     const [error, setError] = useState("");
-
-
-    React.useEffect(() => {
-        setForm({
-            amount: expenseToEdit?.amount || "",
-            category: expenseToEdit?.category || "",
-            description: expenseToEdit?.description || "",
-            date: expenseToEdit?.date?.slice(0, 10) || "",
-        });
-    }, [expenseToEdit]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -52,11 +35,7 @@ const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }) => {
     };
 
     return (
-        <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-        >
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {error && <Box sx={{ color: "error.main", fontSize: 0.9 }}>{error}</Box>}
 
             <TextField
@@ -68,14 +47,7 @@ const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }) => {
                 fullWidth
             />
 
-            <TextField
-                select
-                label="Categoría"
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                fullWidth
-            >
+            <TextField select label="Categoría" name="category" value={form.category} onChange={handleChange} fullWidth>
                 {categoriesList.map((cat) => (
                     <MenuItem key={cat} value={cat}>
                         {cat}
