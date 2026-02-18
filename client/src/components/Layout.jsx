@@ -12,18 +12,17 @@ import {
 import { Brightness7, Brightness4 } from "@mui/icons-material";
 
 const Layout = () => {
-    const { theme, toggleTheme } = useContext(ThemeContext);
+    const { mode, toggleMode } = useContext(ThemeContext);
 
     return (
-        <>
-            {/* Top AppBar */}
+        <Box sx={{ minHeight: "100dvh", bgcolor: "background.default" }}>
             <AppBar
-                position="static"
+                position="sticky"
                 elevation={0}
                 sx={{
-                    bgcolor: "background.default",
+                    bgcolor: "background.paper",
                     color: "text.primary",
-                    borderBottom: 1,
+                    borderBottom: "1px solid",
                     borderColor: "divider",
                 }}
             >
@@ -42,31 +41,21 @@ const Layout = () => {
                             alt="BitOink"
                             sx={{ width: 32, height: 32, borderRadius: 1 }}
                         />
-                        <Typography variant="h6" fontWeight={700}>
+                        <Typography variant="h6" fontWeight={800} color="primary">
                             BitOink
                         </Typography>
                     </Box>
 
-                    {/* THEME */}
-                    <IconButton onClick={toggleTheme} color="inherit">
-                        {theme === "dark" ? <Brightness7 /> : <Brightness4 />}
+                    <IconButton onClick={toggleMode} color="inherit">
+                        {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
                     </IconButton>
                 </Toolbar>
             </AppBar>
 
-            {/* MAIN CONTENT */}
-            <Box
-                sx={{
-                    minHeight: "100vh",
-                    bgcolor: "background.default",
-                    py: 3,
-                }}
-            >
-                <Container maxWidth="md">
-                    <Outlet />
-                </Container>
-            </Box>
-        </>
+            <Container component="main" maxWidth="md" sx={{ py: 4 }}>
+                <Outlet />
+            </Container>
+        </Box>
     );
 };
 

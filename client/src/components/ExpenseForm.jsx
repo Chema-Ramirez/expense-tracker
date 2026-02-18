@@ -1,89 +1,135 @@
 import { useState } from "react";
-import { Box, TextField, Button, MenuItem } from "@mui/material";
+import {
+    TextField, Button, Stack, InputAdornment,
+    ToggleButton, ToggleButtonGroup, Typography, Box
+} from "@mui/material";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
-const categoriesList = ["Sueldo", "Transporte", "Entretenimiento", "Salud", "Comida", "Otros"];
+const CATEGORIES = [
+    "Comida", "Transporte", "Ocio", "Sueldo", "Vivienda", "Salud", "Otros"
+];
 
-const ExpenseForm = ({ onSubmit, expenseToEdit, onCancel }) => {
-    const [form, setForm] = useState(() => ({
-        amount: expenseToEdit?.amount || "",
-        category: expenseToEdit?.category || "",
-        description: expenseToEdit?.description || "",
-        date: expenseToEdit?.date?.slice(0, 10) || "",
-    }));
-
-    const [error, setError] = useState("");
+const ExpenseForm = ({ onSubmit, initialData = null }) => {
+    const [formData, setFormData] = useState(() => {
+        if (initialData) {
+            return {
+                ...initialData,
+                date: new Date(initialData.date).toISOString().split('T')[0]
+            };
+        }
+        return {
+            description: "",
+            amount: "",
+            category: "Otros",
+            date: new Date().toISOString().split('T')[0]
+        };
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCategoryChange = (event, newCategory) => {
+        if (newCategory !== null) {
+            setFormData(prev => ({ ...prev, category: newCategory }));
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!form.amount || !form.category) {
-            setError("Por favor, ingresa un monto y una categoría.");
-            return;
+        onSubmit({
+            ...formData,
+            amount: Number(formData.amount)
+        });
+
+        if (!initialData) {
+            setFormData({
+                description: "",
+                amount: "",
+                category: "Otros",
+                date: new Date().toISOString().split('T')[0]
+            });
         }
-
-        onSubmit({ ...form, amount: parseFloat(form.amount) });
-
-        if (!expenseToEdit) {
-            setForm({ amount: "", category: "", description: "", date: "" });
-        }
-
-        setError("");
     };
 
     return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {error && <Box sx={{ color: "error.main", fontSize: 0.9 }}>{error}</Box>}
+        <form onSubmit={handleSubmit}>
+            <Stack spacing={3}>
+                <Box>
+                    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                        CATEGORÍA
+                    </Typography>
+                    <ToggleButtonGroup
+                        value={formData.category}
+                        exclusive
+                        onChange={handleCategoryChange}
+                        fullWidth
+                        size="small"
+                        sx={{
+                            flexWrap: "wrap",
+                            gap: 1,
+                            "& .MuiToggleButton-root": {
+                                borderRadius: 2,
+                                border: "1px solid !important",
+                                flexGrow: 1
+                            }
+                        }}
+                    >
+                        {CATEGORIES.map(cat => (
+                            <ToggleButton key={cat} value={cat} sx={{ px: 2, py: 0.5 }}>
+                                {cat}
+                            </ToggleButton>
+                        ))}
+                    </ToggleButtonGroup>
+                </Box>
 
-            <TextField
-                label="Monto (€)"
-                type="number"
-                name="amount"
-                value={form.amount}
-                onChange={handleChange}
-                fullWidth
-            />
+                <TextField
+                    label="Cantidad"
+                    name="amount"
+                    type="number"
+                    fullWidth
+                    required
+                    value={formData.amount}
+                    onChange={handleChange}
+                    inputProps={{ step: "0.01" }}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                    }}
+                />
 
-            <TextField select label="Categoría" name="category" value={form.category} onChange={handleChange} fullWidth>
-                {categoriesList.map((cat) => (
-                    <MenuItem key={cat} value={cat}>
-                        {cat}
-                    </MenuItem>
-                ))}
-            </TextField>
+                <TextField
+                    label="Concepto / Descripción"
+                    name="description"
+                    placeholder="Ej: Cena con amigos"
+                    fullWidth
+                    value={formData.description}
+                    onChange={handleChange}
+                />
 
-            <TextField
-                label="Descripción (opcional)"
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                fullWidth
-            />
+                <TextField
+                    label="Fecha"
+                    name="date"
+                    type="date"
+                    fullWidth
+                    value={formData.date}
+                    onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
+                />
 
-            <TextField
-                label="Fecha"
-                type="date"
-                name="date"
-                value={form.date}
-                onChange={handleChange}
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-            />
-
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-                {expenseToEdit && (
-                    <Button onClick={onCancel} variant="outlined" color="inherit">
-                        Cancelar
-                    </Button>
-                )}
-                <Button type="submit" variant="contained" color="primary">
-                    {expenseToEdit ? "Actualizar" : "Agregar"}
+                <Button
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    size="large"
+                    startIcon={<AddCircleOutlineIcon />}
+                    sx={{ py: 1.5, mt: 2 }}
+                >
+                    {initialData ? "Actualizar Registro" : "Añadir Registro"}
                 </Button>
-            </Box>
-        </Box>
+            </Stack>
+        </form>
     );
 };
 

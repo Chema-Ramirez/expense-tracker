@@ -1,133 +1,91 @@
-import { useState, useEffect } from "react";
-import { Container, Typography, Box, Button, Modal } from "@mui/material";
+import { Container, Typography, Box, Stack, Fab, Zoom } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { useState } from "react";
 
-import PiggyGoalCard from "../components/PiggyGoalCard";
+// HOOKS Y COMPONENTS
 import PiggySummary from "../components/PiggySummary";
-
-import {
-    getSavingsGoals,
-    createSavingsGoal,
-    updateSavingsGoal,
-    deleteSavingsGoal,
-} from "../services/savingsGoalServices";
+import PiggyGoalCard from "../components/PiggyGoalCard";
+import ModalWrapper from "../components/ModalWrapper";
+import PiggyGoalForm from "../components/PiggyGoalForm";
+import { useSavingsGoals } from "../hooks/useSavingsGoals";
 
 const PiggyBank = () => {
-    const [modalOpen, setModalOpen] = useState(false);
-    const [goals, setGoals] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [newGoalData, setNewGoalData] = useState({ name: "", target: 0, suggestedAmount: 0 });
+    const { goals, addGoal, updateGoal, deleteGoal, loading } = useSavingsGoals();
+    const [openModal, setOpenModal] = useState(false);
 
-    useEffect(() => {
-        fetchGoals();
-    }, []);
-
-    const fetchGoals = async () => {
-        setLoading(true);
-        try {
-            const data = await getSavingsGoals();
-            setGoals(data);
-        } catch (error) {
-            alert(error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleCreateGoal = async (goalData) => {
-        try {
-            await createSavingsGoal(goalData);
-            setModalOpen(false);
-            fetchGoals();
-        } catch (error) {
-            alert(error.message);
-        }
-    };
-
-    const handleUpdateGoal = async (id, updatedData) => {
-        try {
-            await updateSavingsGoal(id, updatedData);
-            fetchGoals();
-        } catch (error) {
-            alert(error.message);
-        }
-    };
-
-    const handleDeleteGoal = async (id) => {
-        try {
-            await deleteSavingsGoal(id);
-            fetchGoals();
-        } catch (error) {
-            alert(error.message);
-        }
+    const handleAddGoal = async (data) => {
+        await addGoal(data);
+        setOpenModal(false);
     };
 
     return (
-        <Container maxWidth="sm" sx={{ py: 3 }}>
-            <Box mb={3} textAlign="center">
-                <Typography variant="h4" fontWeight={700}>🐷 Hucha</Typography>
-                <Typography variant="body2" color="text.secondary">Tus objetivos de ahorro</Typography>
+        <Container maxWidth="sm">
+            {/* HEADER */}
+            <Box my={3}>
+                <Typography variant="h4" fontWeight={900}>Mi Hucha 🐷</Typography>
+                <Typography variant="body1" color="text.secondary">
+                    Gestiona tus objetivos de ahorro
+                </Typography>
             </Box>
 
-            <PiggySummary goals={goals} />
-
-            <Box mt={3} display="flex" flexDirection="column" gap={2}>
-                {loading ? (
-                    <Typography textAlign="center">Cargando objetivos...</Typography>
-                ) : goals.length === 0 ? (
-                    <Typography textAlign="center" color="text.secondary">No hay objetivos todavía.</Typography>
-                ) : (
-                    goals.map((goal) => (
-                        <PiggyGoalCard
-                            key={goal._id}
-                            id={goal._id}
-                            name={goal.name}
-                            saved={goal.currentAmount}
-                            target={goal.targetAmount}
-                            suggestedAmount={goal.suggestedAmount}
-                            onUpdate={handleUpdateGoal}
-                            onDelete={handleDeleteGoal}
-                        />
-                    ))
-                )}
+            {/* RESUMEN AHORRO TOTAL */}
+            <Box mb={4}>
+                <PiggySummary goals={goals} />
             </Box>
 
-            <Box mt={4}>
-                <Button
-                    fullWidth
-                    variant="contained"
-                    size="large"
-                    sx={{ borderRadius: 3 }}
-                    onClick={() => {
-                        setNewGoalData({ name: "", target: 0, suggestedAmount: 0 });
-                        setModalOpen(true);
-                    }}
+            {/* LISTADO */}
+            <Typography variant="h6" mb={2} fontWeight={700}>Objetivos activos</Typography>
+
+            {loading ? (
+                <Typography>Cargando metas...</Typography>
+            ) : (
+                <Stack spacing={1}>
+                    {goals.length > 0 ? (
+                        goals.map((goal) => (
+                            <PiggyGoalCard
+                                key={goal._id}
+                                id={goal._id}
+                                name={goal.name}
+                                saved={goal.currentAmount || 0}
+                                target={goal.targetAmount || 0}
+                                suggestedAmount={goal.suggestedAmount || 0}
+                                onUpdate={updateGoal}
+                                onDelete={deleteGoal}
+                            />
+                        ))
+                    ) : (
+                        <Box textAlign="center" py={5} bgcolor="background.paper" borderRadius={4}>
+                            <Typography color="text.secondary">
+                                No tienes metas creadas aún.
+                            </Typography>
+                        </Box>
+                    )}
+                </Stack>
+            )}
+
+            {/* BOTÓN AÑADIR META */}
+            <Zoom in={true}>
+                <Fab
+                    color="secondary"
+                    aria-label="add-goal"
+                    onClick={() => setOpenModal(true)}
+                    sx={{ position: 'fixed', bottom: 90, right: 20 }}
                 >
-                    Añadir objetivo
-                </Button>
-            </Box>
+                    <AddIcon />
+                </Fab>
+            </Zoom>
 
-            <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        width: 350,
-                        bgcolor: "background.paper",
-                        borderRadius: 3,
-                        boxShadow: 24,
-                        p: 3,
-                    }}
-                >
-                    <PiggyGoalCard
-                        {...newGoalData}
-                        onUpdate={() => { }}
-                        onDelete={null}
-                        onSave={handleCreateGoal}
-                    />
-                </Box>
-            </Modal>
+            {/* MODAL NUEVA META */}
+            <ModalWrapper
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+                title="Nueva Meta de Ahorro"
+            >
+                <PiggyGoalForm
+                    onSubmit={handleAddGoal}
+                    onCancel={() => setOpenModal(false)}
+                />
+            </ModalWrapper>
         </Container>
     );
 };

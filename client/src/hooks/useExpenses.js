@@ -1,37 +1,41 @@
-import { useState, useCallback, useContext } from "react";
+import { useContext } from "react";
 import { ExpensesContext } from "../context/ExpensesContext";
-import { getExpenses, createExpense, updateExpense, deleteExpense } from "../services/expenseServices";
+import {
+    createExpense,
+    updateExpense,
+    deleteExpense as apiDeleteExpense
+} from "../services/expenseServices";
 
 export const useExpenses = () => {
-    const { expenses, setExpenses } = useContext(ExpensesContext);
-    const [loading, setLoading] = useState(false);
-
-    const fetchExpenses = useCallback(async (filters = {}) => {
-        setLoading(true);
-        try {
-            const data = await getExpenses(filters);
-            setExpenses(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }, [setExpenses]);
+    const { expenses, setExpenses, loading, refreshExpenses } = useContext(ExpensesContext);
 
     const addExpense = async (expenseData) => {
         await createExpense(expenseData);
-        fetchExpenses();
+        await refreshExpenses();
     };
 
     const editExpense = async (id, expenseData) => {
         await updateExpense(id, expenseData);
-        fetchExpenses();
+        await refreshExpenses();
     };
 
     const removeExpense = async (id) => {
-        await deleteExpense(id);
-        fetchExpenses();
+        try {
+            setExpenses(prev => prev.filter(exp => exp.id !== id));
+
+            await apiDeleteExpense(id);
+        } catch (error) {
+            await refreshExpenses();
+            throw error;
+        }
     };
 
-    return { expenses, loading, fetchExpenses, addExpense, editExpense, removeExpense };
+    return {
+        expenses,
+        loading,
+        addExpense,
+        editExpense,
+        deleteExpense: removeExpense,
+        refreshExpenses
+    };
 };

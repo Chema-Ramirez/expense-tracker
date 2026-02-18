@@ -1,12 +1,7 @@
 import api from "../api/api";
+import { cleanFilters, handleError } from "./apiUtils";
 
-// LIMPIA FILTROS
-const cleanFilters = (filters = {}) =>
-    Object.fromEntries(
-        Object.entries(filters).filter(([, value]) => value !== null && value !== "")
-    );
-
-// GET ALL 
+// GET ALL
 export const getSavingsGoals = async (filters = {}) => {
     try {
         const res = await api.get("/savings", {
@@ -18,7 +13,7 @@ export const getSavingsGoals = async (filters = {}) => {
     }
 };
 
-// CREATE 
+// CREATE
 export const createSavingsGoal = async (goalData) => {
     try {
         const res = await api.post("/savings", goalData);
@@ -28,7 +23,7 @@ export const createSavingsGoal = async (goalData) => {
     }
 };
 
-// UPDATE 
+// UPDATE
 export const updateSavingsGoal = async (id, updatedData) => {
     try {
         const res = await api.put(`/savings/${id}`, updatedData);
@@ -38,7 +33,7 @@ export const updateSavingsGoal = async (id, updatedData) => {
     }
 };
 
-// DELETE 
+// DELETE
 export const deleteSavingsGoal = async (id) => {
     try {
         await api.delete(`/savings/${id}`);
@@ -46,12 +41,4 @@ export const deleteSavingsGoal = async (id) => {
     } catch (err) {
         handleError(err, "No se pudo eliminar el objetivo de ahorro");
     }
-};
-
-// ERROR HANDLING
-const handleError = (err, defaultMessage) => {
-    if (err.response?.status === 401) {
-        throw new Error("No autorizado. Token inválido o expirado.");
-    }
-    throw new Error(err.response?.data?.message || defaultMessage);
 };

@@ -10,10 +10,9 @@ const DashboardLayout = () => {
 
     const navItems = [
         { label: "Inicio", icon: "/icons/home.png", to: "/dashboard" },
-        { label: "Gastos", icon: "/icons/expenses.png", to: "/expenses" },
+        { label: "Gastos", icon: "/icons/gasto.png", to: "/expenses" },
         { label: "Hucha", icon: "/icons/192.png", to: "/piggybank" },
         { label: "Perfil", icon: "/icons/user.png", to: "/profile" },
-        { label: "Ajustes", icon: "/icons/config.png", to: "/settings" },
     ];
 
     const handleLogout = () => {
@@ -28,7 +27,7 @@ const DashboardLayout = () => {
                 <Outlet />
             </Box>
 
-            {/* FOOTER NAVIGATION */}
+            {/* FOOTER */}
             <Box
                 sx={{
                     position: "fixed",
@@ -56,7 +55,7 @@ const DashboardLayout = () => {
                 ))}
 
                 <IconButton onClick={handleLogout} sx={{ flexDirection: "column", color: "#f44336" }}>
-                    <Box component="img" src="/icons/logout.png" alt="Salir" sx={{ width: 28, height: 28, mb: 0.5 }} />
+                    <Box component="img" src="/icons/cerrar-sesion.png" alt="Salir" sx={{ width: 28, height: 28, mb: 0.5 }} />
                     <Typography variant="caption">Salir</Typography>
                 </IconButton>
             </Box>

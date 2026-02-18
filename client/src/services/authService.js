@@ -4,6 +4,7 @@ import api from "../api/api";
 export const login = async (credentials) => {
     try {
         const res = await api.post("/auth/login", credentials);
+        localStorage.setItem("token", res.data.token);
         return res.data;
     } catch (err) {
         const message = err.response?.data?.message || "Error al iniciar sesión";
@@ -24,9 +25,10 @@ export const register = async (data) => {
 
 // GET CURRENT USER
 export const getCurrentUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
     try {
-        // Usamos Axios en vez de fetch
-        const res = await api.get("/auth/me", { withCredentials: true });
+        const res = await api.get("/auth/me");
         return res.data.user;
     } catch (err) {
         console.error("Error fetching current user:", err);
@@ -37,7 +39,7 @@ export const getCurrentUser = async () => {
 // LOGOUT
 export const logout = async () => {
     try {
-        await api.post("/auth/logout", {}, { withCredentials: true });
+        localStorage.removeItem("token");
     } catch (error) {
         console.error("Error logging out:", error);
     }
