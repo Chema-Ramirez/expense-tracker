@@ -8,14 +8,21 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const initAuth = async () => {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
             try {
-                const currentUser = await getCurrentUser();
-                if (currentUser) {
-                    setUser(currentUser);
+                const response = await getCurrentUser();
+                if (response && response.user) {
+                    setUser(response.user);
                 }
-            } catch (error) {
-                console.error("Error recuperando sesión:", error);
-                localStorage.removeItem("user");
+            } catch {
+                console.warn("Sesión expirada o token inválido.");
+                logout();
             } finally {
                 setLoading(false);
             }
@@ -24,18 +31,17 @@ export const AuthProvider = ({ children }) => {
         initAuth();
     }, []);
 
-    const login = (userData) => {
+    const login = (userData, token) => {
+        localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
     };
 
     const logout = () => {
-        // Limpiamos todo
-        localStorage.removeItem("user");
         localStorage.removeItem("token");
+        localStorage.removeItem("user");
         setUser(null);
     };
-
     if (loading) {
         return null;
     }

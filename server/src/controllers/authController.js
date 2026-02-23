@@ -8,12 +8,12 @@ const register = async (req, res) => {
         const { name, email, password } = req.body;
 
         if (!name || !email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
+            return res.status(400).json({ message: "Todos los campos son obligatorios" });
         }
 
         const userExists = await User.findOne({ email });
         if (userExists) {
-            return res.status(400).json({ message: "The user already exists" });
+            return res.status(400).json({ message: "El usuario ya existe" });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -30,7 +30,7 @@ const register = async (req, res) => {
         });
 
         res.status(201).json({
-            message: "User created successfully",
+            message: "Usuario creado con éxito",
             token,
             user: {
                 id: user._id,
@@ -50,17 +50,17 @@ const login = async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ message: "Email and password required" });
+            return res.status(400).json({ message: "Se requiere correo electrónico y contraseña" });
         }
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ message: "Credenciales inválidas" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(400).json({ message: "Credenciales inválidas" });
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
@@ -68,7 +68,7 @@ const login = async (req, res) => {
         });
 
         res.json({
-            message: "Successful login",
+            message: "Inicio de sesión exitoso",
             token,
             user: {
                 id: user._id,

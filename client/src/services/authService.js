@@ -4,7 +4,9 @@ import api from "../api/api";
 export const login = async (credentials) => {
     try {
         const res = await api.post("/auth/login", credentials);
-        localStorage.setItem("token", res.data.token);
+        if (res.data.token) {
+            localStorage.setItem("token", res.data.token);
+        }
         return res.data;
     } catch (err) {
         const message = err.response?.data?.message || "Error al iniciar sesión";
@@ -16,6 +18,9 @@ export const login = async (credentials) => {
 export const register = async (data) => {
     try {
         const res = await api.post("/auth/register", data);
+        if (res.data.token) {
+            localStorage.setItem("token", res.data.token);
+        }
         return res.data;
     } catch (err) {
         const message = err.response?.data?.message || "Error al registrar usuario";
@@ -27,20 +32,18 @@ export const register = async (data) => {
 export const getCurrentUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) return null;
+
     try {
         const res = await api.get("/auth/me");
-        return res.data.user;
-    } catch (err) {
-        console.error("Error fetching current user:", err);
+        return res.data;
+    } catch {
+        localStorage.removeItem("token");
         return null;
     }
 };
 
 // LOGOUT
-export const logout = async () => {
-    try {
-        localStorage.removeItem("token");
-    } catch (error) {
-        console.error("Error logging out:", error);
-    }
+export const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 };

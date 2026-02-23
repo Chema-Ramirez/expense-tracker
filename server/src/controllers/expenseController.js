@@ -6,7 +6,7 @@ const createExpense = async (req, res) => {
         const { amount, category, description, date } = req.body;
 
         if (!amount || !category) {
-            return res.status(400).json({ message: "Amount and category are required" });
+            return res.status(400).json({ message: "Se requiere Cantidad y Categoría" });
         }
 
         const expense = await Expense.create({
@@ -14,7 +14,7 @@ const createExpense = async (req, res) => {
         });
 
         res.status(201).json({
-            message: "Expense created successfully",
+            message: "Gasto añadido con éxito",
             expense
         });
     } catch (error) {
@@ -55,18 +55,20 @@ const updateExpense = async (req, res) => {
         const expense = await Expense.findById(req.params.id);
 
         if (!expense) {
-            return res.status(404).json({ message: "Expense not found" });
+            return res.status(404).json({ message: "Gasto no encontrado" });
         }
 
         if (expense.user.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Not authorized" });
+            return res.status(403).json({ message: "No Autorizado" });
         }
 
-        const updateExpense = await Expense.findByIdAndUpdate(
-            req.params.id, req.body, { new: true }
+        const updatedExpense = await Expense.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
         );
+        res.json(updatedExpense);
 
-        res.json(updateExpense);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" });
@@ -80,15 +82,15 @@ const deleteExpense = async (req, res) => {
         const expense = await Expense.findById(req.params.id);
 
         if (!expense) {
-            return res.status(404).json({ message: "Expense not found" });
+            return res.status(404).json({ message: "Gasto no encontrado" });
         }
 
         if (expense.user.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Not authorized" });
+            return res.status(403).json({ message: "No Autorizado" });
         }
         await expense.deleteOne();
 
-        res.json({ message: "Expense removed" })
+        res.json({ message: "Gasto eliminado" })
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error" })
