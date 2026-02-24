@@ -24,6 +24,8 @@ const Expenses = () => {
         console.log("Editar gasto:", expense);
     };
 
+    const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
+
     return (
         <Container maxWidth="sm" sx={{ py: 4, pb: 10 }}>
             {/* HEADER */}
@@ -38,13 +40,13 @@ const Expenses = () => {
 
             {/* LISTA DE GASTOS */}
             <List sx={{ p: 0 }}>
-                {expenses.length === 0 && !loading ? (
+                {sortedExpenses.length === 0 && !loading ? (
                     <Typography textAlign="center" py={10} color="text.secondary">
                         No hay gastos registrados aún. 🐷
                     </Typography>
                 ) : (
-                    expenses.map((expense, index) => (
-                        <Fade in={true} timeout={300 + index * 100} key={expense.id || index}>
+                    sortedExpenses.map((expense, index) => (
+                        <Fade in={true} timeout={300 + index * 100} key={expense._id || expense.id || index}>
                             <Paper
                                 elevation={0}
                                 sx={{
@@ -74,7 +76,7 @@ const Expenses = () => {
                                             <IconButton
                                                 edge="end"
                                                 aria-label="delete"
-                                                onClick={() => handleDelete(expense.id)}
+                                                onClick={() => handleDelete(expense._id || expense.id)}
                                                 sx={{ color: theme.palette.error.main }}
                                             >
                                                 <DeleteIcon fontSize="small" />
@@ -100,6 +102,7 @@ const Expenses = () => {
                                                     {expense.description}
                                                 </Typography>
                                             }
+                                            secondaryTypographyProps={{ component: 'div' }}
                                             secondary={
                                                 <Stack direction="row" spacing={1} mt={0.5} alignItems="center">
                                                     <Chip
@@ -120,7 +123,7 @@ const Expenses = () => {
                                             color="error.main"
                                             sx={{ mr: 2 }}
                                         >
-                                            -{expense.amount}€
+                                            -{Number(expense.amount).toLocaleString('es-ES', { minimumFractionDigits: 2 })}€
                                         </Typography>
                                     </Stack>
                                 </ListItem>

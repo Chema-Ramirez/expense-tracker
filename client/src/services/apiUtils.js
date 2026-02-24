@@ -6,12 +6,13 @@ export const cleanFilters = (filters = {}) =>
     );
 
 export const handleError = (err, defaultMessage) => {
+    console.error("Error capturado:", err);
+
     if (err.response) {
         if (err.response.status === 401) {
-            throw new Error("Sesión expirada. Por favor, inicia sesión de nuevo.");
+            return "Sesión expirada";
         }
         throw new Error(err.response.data?.message || defaultMessage);
     }
-
     throw new Error(err.message || "Error de conexión con el servidor");
 };

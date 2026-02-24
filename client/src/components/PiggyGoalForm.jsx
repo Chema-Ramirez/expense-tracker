@@ -14,10 +14,12 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         onSubmit({
-            ...formData,
+            name: formData.name.trim(),
             targetAmount: Number(formData.targetAmount),
-            suggestedAmount: Number(formData.suggestedAmount)
+            suggestedAmount: Number(formData.suggestedAmount) || 0,
+            currentAmount: 0
         });
     };
 
@@ -30,6 +32,7 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                     placeholder="Ej: Viaje a Japón, Coche nuevo..."
                     fullWidth
                     required
+                    autoFocus
                     value={formData.name}
                     onChange={handleChange}
                 />
@@ -42,6 +45,7 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                     required
                     value={formData.targetAmount}
                     onChange={handleChange}
+                    inputProps={{ min: 0, step: "0.01" }}
                     InputProps={{
                         startAdornment: <InputAdornment position="start">€</InputAdornment>,
                     }}
@@ -54,16 +58,34 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                     fullWidth
                     value={formData.suggestedAmount}
                     onChange={handleChange}
+                    inputProps={{ min: 0, step: "0.01" }}
+                    helperText="Opcional: ¿Cuánto quieres apartar cada mes?"
                     InputProps={{
                         startAdornment: <InputAdornment position="start">€</InputAdornment>,
                     }}
                 />
 
                 <Stack direction="row" spacing={2} sx={{ pt: 1 }}>
-                    <Button fullWidth variant="outlined" color="inherit" onClick={onCancel}>
+                    <Button
+                        fullWidth
+                        variant="text"
+                        color="inherit"
+                        onClick={onCancel}
+                        sx={{ fontWeight: 600 }}
+                    >
                         Cancelar
                     </Button>
-                    <Button fullWidth variant="contained" color="primary" type="submit">
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        sx={{
+                            fontWeight: 700,
+                            borderRadius: 3,
+                            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)'
+                        }}
+                    >
                         Guardar Meta
                     </Button>
                 </Stack>

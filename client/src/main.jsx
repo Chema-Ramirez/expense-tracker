@@ -4,6 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { AuthProvider } from "./context/AuthProvider";
 import { ThemeProvider } from "./context/ThemeProvider";
+import { ExpensesProvider } from "./context/ExpensesProvider";
+import { SavingsProvider } from "./context/SavingsProvider";
 import "./App.css";
 import { registerSW } from "virtual:pwa-register";
 
@@ -14,7 +16,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          <App />
+          <ExpensesProvider>
+            <SavingsProvider>
+              <App />
+            </SavingsProvider>
+          </ExpensesProvider>
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

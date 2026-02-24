@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
     TextField, Button, Stack, InputAdornment,
-    ToggleButton, ToggleButtonGroup, Typography, Box
+    ToggleButton, ToggleButtonGroup, Typography, Box, CircularProgress
 } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
@@ -10,6 +10,9 @@ const CATEGORIES = [
 ];
 
 const ExpenseForm = ({ onSubmit, initialData = null }) => {
+
+    const [loading, setLoading] = useState(false);
+
     const [formData, setFormData] = useState(() => {
         if (initialData) {
             return {
@@ -36,20 +39,30 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSubmit({
-            ...formData,
-            amount: Number(formData.amount)
-        });
 
-        if (!initialData) {
-            setFormData({
-                description: "",
-                amount: "",
-                category: "Otros",
-                date: new Date().toISOString().split('T')[0]
+        if (loading) return;
+
+        setLoading(true);
+        try {
+            await onSubmit({
+                ...formData,
+                amount: Number(formData.amount)
             });
+
+            if (!initialData) {
+                setFormData({
+                    description: "",
+                    amount: "",
+                    category: "Otros",
+                    date: new Date().toISOString().split('T')[0]
+                });
+            }
+        } catch (error) {
+            console.error("Error en el formulario:", error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -66,13 +79,15 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                         onChange={handleCategoryChange}
                         fullWidth
                         size="small"
+                        disabled={loading}
                         sx={{
                             flexWrap: "wrap",
                             gap: 1,
                             "& .MuiToggleButton-root": {
                                 borderRadius: 2,
                                 border: "1px solid !important",
-                                flexGrow: 1
+                                flexGrow: 1,
+                                borderColor: "divider"
                             }
                         }}
                     >
@@ -90,6 +105,7 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                     type="number"
                     fullWidth
                     required
+                    disabled={loading}
                     value={formData.amount}
                     onChange={handleChange}
                     inputProps={{ step: "0.01" }}
@@ -103,6 +119,7 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                     name="description"
                     placeholder="Ej: Cena con amigos"
                     fullWidth
+                    disabled={loading}
                     value={formData.description}
                     onChange={handleChange}
                 />
@@ -112,6 +129,7 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                     name="date"
                     type="date"
                     fullWidth
+                    disabled={loading}
                     value={formData.date}
                     onChange={handleChange}
                     InputLabelProps={{ shrink: true }}
@@ -123,10 +141,14 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                     color="primary"
                     type="submit"
                     size="large"
-                    startIcon={<AddCircleOutlineIcon />}
-                    sx={{ py: 1.5, mt: 2 }}
+                    disabled={loading}
+                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <AddCircleOutlineIcon />}
+                    sx={{ py: 1.5, mt: 2, fontWeight: 'bold' }}
                 >
-                    {initialData ? "Actualizar Registro" : "Añadir Registro"}
+                    {loading
+                        ? "Guardando..."
+                        : (initialData ? "Actualizar Registro" : "Añadir Registro")
+                    }
                 </Button>
             </Stack>
         </form>

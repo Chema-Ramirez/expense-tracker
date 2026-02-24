@@ -7,19 +7,27 @@ export const getSavingsGoals = async (filters = {}) => {
         const res = await api.get("/savings", {
             params: cleanFilters(filters),
         });
-        return res.data;
+
+        return Array.isArray(res.data) ? res.data : [];
     } catch (err) {
-        handleError(err, "No se pudieron obtener los objetivos de ahorro");
+        handleError(err, "No se pudieron obtener los ahorros");
+        return [];
     }
 };
 
 // CREATE
 export const createSavingsGoal = async (goalData) => {
     try {
-        const res = await api.post("/savings", goalData);
+        const payload = {
+            ...goalData,
+            targetAmount: Number(goalData.targetAmount)
+        };
+        const res = await api.post("/savings", payload);
+
         return res.data;
     } catch (err) {
         handleError(err, "No se pudo crear el objetivo de ahorro");
+        throw err;
     }
 };
 
@@ -27,9 +35,10 @@ export const createSavingsGoal = async (goalData) => {
 export const updateSavingsGoal = async (id, updatedData) => {
     try {
         const res = await api.put(`/savings/${id}`, updatedData);
-        return res.data;
+        return res.data.goal || res.data;
     } catch (err) {
         handleError(err, "No se pudo actualizar el objetivo de ahorro");
+        throw err;
     }
 };
 
@@ -40,5 +49,6 @@ export const deleteSavingsGoal = async (id) => {
         return true;
     } catch (err) {
         handleError(err, "No se pudo eliminar el objetivo de ahorro");
+        return false;
     }
 };

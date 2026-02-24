@@ -1,87 +1,58 @@
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { useTheme, Box, Typography } from '@mui/material';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ExpensePieChart = ({ expenses = [] }) => {
     const theme = useTheme();
 
-    // CATEGORIAS
-    const chartData = expenses
-        .filter(exp => exp.category !== "Sueldo")
-        .reduce((acc, curr) => {
-            const found = acc.find(item => item.name === curr.category);
-            if (found) {
-                found.value += curr.amount;
-            } else {
-                acc.push({ name: curr.category, value: curr.amount });
-            }
-            return acc;
-        }, []);
+    const totals = expenses.reduce((acc, curr) => {
+        const cat = curr.category || 'Otros';
+        acc[cat] = (acc[cat] || 0) + Number(curr.amount);
+        return acc;
+    }, {});
 
-    // COLORES
-    const COLORS = [
-        theme.palette.primary.main,
-        theme.palette.secondary.main,
-        theme.palette.error.light,
-        theme.palette.warning.main,
-        theme.palette.info.main,
-        "#8884d8",
-        "#82ca9d"
-    ];
+    const labels = Object.keys(totals);
+    const dataValues = Object.values(totals);
 
-    if (chartData.length === 0) {
+    if (expenses.length === 0) {
         return (
-            <Box textAlign="center" py={4}>
-                <Typography variant="body2" color="text.secondary">
-                    Aún no hay gastos para mostrar el gráfico
-                </Typography>
+            <Box sx={{ textAlign: 'center', py: 5 }}>
+                <Typography variant="body2" color="text.secondary">No hay datos suficientes</Typography>
             </Box>
         );
     }
 
-    return (
-        <Box sx={{ width: '100%', height: 300, position: 'relative' }}>
-            <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                    <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
-                    >
-                        {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                    </Pie>
-                    <Tooltip
-                        contentStyle={{
-                            borderRadius: '12px',
-                            border: 'none',
-                            boxShadow: theme.shadows[3],
-                            backgroundColor: theme.palette.background.paper
-                        }}
-                    />
-                    <Legend
-                        verticalAlign="bottom"
-                        height={36}
-                        iconType="circle"
-                        formatter={(value) => <span style={{ color: theme.palette.text.primary, fontSize: '12px', fontWeight: 500 }}>{value}</span>}
-                    />
-                </PieChart>
-            </ResponsiveContainer>
+    const data = {
+        labels,
+        datasets: [{
+            data: dataValues,
+            backgroundColor: [
+                theme.palette.primary.main,
+                theme.palette.secondary.main,
+                theme.palette.error.light,
+                theme.palette.warning.light,
+                theme.palette.info.light,
+                '#A5D6A7'
+            ],
+            borderWidth: 2,
+            borderColor: theme.palette.background.paper,
+            hoverOffset: 15,
+        }],
+    };
 
-            {/* TEXTO CENTRAL */}
-            <Box sx={{
-                position: 'absolute',
-                top: '43%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                textAlign: 'center'
-            }}>
-                <Typography variant="caption" color="text.secondary" fontWeight={700}>GASTOS</Typography>
-            </Box>
+    const options = {
+        cutout: '75%',
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+        },
+        maintainAspectRatio: false,
+    };
+
+    return (
+        <Box sx={{ height: 280, width: '100%' }}>
+            <Doughnut data={data} options={options} />
         </Box>
     );
 };

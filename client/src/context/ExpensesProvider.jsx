@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ExpensesContext } from "./ExpensesContext";
 import {
     getExpenses,
@@ -13,13 +13,13 @@ export const ExpensesProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const { user } = useAuth();
 
-    // CATEGORIAS
+    const initialized = useRef(false);
+
     const categories = ["Comida", "Transporte", "Vivienda", "Salud", "Ocio", "Otros"];
 
-
-    // READ
     const fetchExpenses = useCallback(async () => {
         if (!user) return;
+
         setLoading(true);
         try {
             const data = await getExpenses();
@@ -31,14 +31,12 @@ export const ExpensesProvider = ({ children }) => {
         }
     }, [user]);
 
-
-    // CREATE
+    // ADD
     const addExpense = async (expenseData) => {
         try {
-            const newExpense = await createExpense(expenseData);
-            if (newExpense) {
-                setExpenses((prev) => [newExpense, ...prev]);
-            }
+            const response = await createExpense(expenseData);
+            const newExpense = response.expense || response;
+            setExpenses((prev) => [newExpense, ...prev]);
             return newExpense;
         } catch (error) {
             console.error("Error al añadir gasto:", error);
@@ -46,11 +44,11 @@ export const ExpensesProvider = ({ children }) => {
         }
     };
 
-
     // UPDATE
     const updateExpense = async (id, updatedData) => {
         try {
-            const updatedExpense = await updateService(id, updatedData);
+            const response = await updateService(id, updatedData);
+            const updatedExpense = response.expense || response;
             setExpenses((prev) =>
                 prev.map((exp) => (exp._id === id ? updatedExpense : exp))
             );
@@ -60,7 +58,6 @@ export const ExpensesProvider = ({ children }) => {
             throw error;
         }
     };
-
 
     // DELETE
     const deleteExpense = async (id) => {
@@ -78,6 +75,7 @@ export const ExpensesProvider = ({ children }) => {
             fetchExpenses();
         } else {
             setExpenses([]);
+            initialized.current = false;
         }
     }, [user, fetchExpenses]);
 

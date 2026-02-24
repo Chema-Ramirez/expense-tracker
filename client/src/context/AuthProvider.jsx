@@ -9,20 +9,30 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const initAuth = async () => {
             const token = localStorage.getItem("token");
+            const storedUser = localStorage.getItem("user");
 
             if (!token) {
                 setLoading(false);
                 return;
             }
 
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            }
+
             try {
                 const response = await getCurrentUser();
-                if (response && response.user) {
-                    setUser(response.user);
+
+                const userData = response.user || response;
+
+                if (userData) {
+                    setUser(userData);
+                    localStorage.setItem("user", JSON.stringify(userData));
                 }
-            } catch {
-                console.warn("Sesión expirada o token inválido.");
-                logout();
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    logout();
+                }
             } finally {
                 setLoading(false);
             }

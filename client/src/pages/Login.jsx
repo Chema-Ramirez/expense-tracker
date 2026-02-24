@@ -43,10 +43,19 @@ const Login = () => {
         setLoading(true);
         try {
             const res = await loginService(form);
-            loginContext(res);
-            navigate("/dashboard");
+            const userData = res.user || res.data?.user;
+            const token = res.token || res.data?.token;
+
+            if (userData && token) {
+                loginContext(userData, token);
+                navigate("/dashboard");
+            } else {
+                console.error("Respuesta inesperada del servidor:", res);
+                setError("Error en la respuesta del servidor");
+            }
         } catch (err) {
-            setError(err.message || "Credenciales incorrectas");
+            const message = err.response?.data?.message || "Credenciales incorrectas";
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -67,7 +76,7 @@ const Login = () => {
                         : "linear-gradient(135deg, #0B1F1A 0%, #04110E 100%)",
             }}
         >
-            {/* BURBUJAS */}
+            {/* BURBUJAS DE FONDO */}
             {bubbles.map((b, i) => (
                 <Typography
                     key={i}
@@ -102,7 +111,6 @@ const Login = () => {
                     }}
                 >
                     <Stack spacing={3}>
-                        {/* LOGO */}
                         <Stack alignItems="center" spacing={2}>
                             <Box
                                 component="img"
@@ -129,12 +137,14 @@ const Login = () => {
 
                         {error && <Alert severity="error" sx={{ borderRadius: 2 }}>{error}</Alert>}
 
-                        <Box component="form" onSubmit={handleSubmit}>
+                        <Box component="form" onSubmit={handleSubmit} noValidate>
                             <Stack spacing={2.5}>
                                 <TextField
                                     label="Email"
                                     name="email"
+                                    type="email"
                                     fullWidth
+                                    autoComplete="email"
                                     value={form.email}
                                     onChange={handleChange}
                                     variant="outlined"
@@ -145,6 +155,7 @@ const Login = () => {
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     fullWidth
+                                    autoComplete="current-password"
                                     value={form.password}
                                     onChange={handleChange}
                                     InputProps={{

@@ -1,4 +1,4 @@
-import { Container, Typography, Box, Stack, Fab, Zoom } from "@mui/material";
+import { Container, Typography, Box, Stack, Fab, Zoom, CircularProgress } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 
@@ -19,27 +19,39 @@ const PiggyBank = () => {
     };
 
     return (
-        <Container maxWidth="sm">
+        <Container maxWidth="sm" sx={{ pb: 12 }}>
             {/* HEADER */}
-            <Box my={3}>
-                <Typography variant="h4" fontWeight={900}>Mi Hucha 🐷</Typography>
-                <Typography variant="body1" color="text.secondary">
-                    Gestiona tus objetivos de ahorro
+            <Box my={4}>
+                <Typography variant="h4" fontWeight={900} gutterBottom>
+                    Mi Hucha 🐷
+                </Typography>
+                <Typography variant="body1" color="text.secondary" fontWeight={500}>
+                    Gestiona tus objetivos de ahorro y visualiza tu progreso.
                 </Typography>
             </Box>
 
             {/* RESUMEN AHORRO TOTAL */}
-            <Box mb={4}>
+            <Box mb={5}>
                 <PiggySummary goals={goals} />
             </Box>
 
             {/* LISTADO */}
-            <Typography variant="h6" mb={2} fontWeight={700}>Objetivos activos</Typography>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6" fontWeight={800}>
+                    Objetivos activos
+                </Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={700}>
+                    {goals.length} {goals.length === 1 ? 'META' : 'METAS'}
+                </Typography>
+            </Stack>
 
-            {loading ? (
-                <Typography>Cargando metas...</Typography>
+            {loading && goals.length === 0 ? (
+                <Box textAlign="center" py={10}>
+                    <CircularProgress size={30} thickness={5} />
+                    <Typography sx={{ mt: 2 }} color="text.secondary">Actualizando tu hucha...</Typography>
+                </Box>
             ) : (
-                <Stack spacing={1}>
+                <Stack spacing={0.5}>
                     {goals.length > 0 ? (
                         goals.map((goal) => (
                             <PiggyGoalCard
@@ -54,9 +66,20 @@ const PiggyBank = () => {
                             />
                         ))
                     ) : (
-                        <Box textAlign="center" py={5} bgcolor="background.paper" borderRadius={4}>
-                            <Typography color="text.secondary">
-                                No tienes metas creadas aún.
+                        <Box
+                            textAlign="center"
+                            py={8}
+                            px={3}
+                            bgcolor="action.hover"
+                            borderRadius={6}
+                            border="2px dashed"
+                            borderColor="divider"
+                        >
+                            <Typography variant="h6" fontWeight={700} color="text.secondary" gutterBottom>
+                                ¿Tienes un nuevo sueño?
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Haz clic en el botón + para empezar a ahorrar para ese viaje o capricho.
                             </Typography>
                         </Box>
                     )}
@@ -64,12 +87,17 @@ const PiggyBank = () => {
             )}
 
             {/* BOTÓN AÑADIR META */}
-            <Zoom in={true}>
+            <Zoom in={!loading}>
                 <Fab
-                    color="secondary"
+                    color="primary"
                     aria-label="add-goal"
                     onClick={() => setOpenModal(true)}
-                    sx={{ position: 'fixed', bottom: 90, right: 20 }}
+                    sx={{
+                        position: 'fixed',
+                        bottom: 30,
+                        right: 20,
+                        boxShadow: (theme) => `0 10px 25px ${theme.palette.primary.light}80`
+                    }}
                 >
                     <AddIcon />
                 </Fab>

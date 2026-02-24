@@ -1,15 +1,22 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
+    baseURL: "http://localhost:4000/api",
 });
 
-// INTERCEPTOR DE PETICIÓN
+//INTERCEPTOR DE PETICION
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
+
         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            const cleanToken = token.startsWith('"') && token.endsWith('"')
+                ? token.slice(1, -1)
+                : token;
+
+            config.headers.Authorization = `Bearer ${cleanToken}`;
+        } else {
+            console.warn("Petición sin token a:", config.url);
         }
         return config;
     },
@@ -20,12 +27,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
+        if (error.response?.status === 401 && !error.config.url.includes("/login")) {
+            console.error("401 detectado. Motivo:", error.response.data?.message);
 
-            if (!window.location.pathname.includes('/login')) {
-                window.location.href = '/login';
+            const msg = error.response.data?.message;
+            if (msg === "No autorizado" || msg === "Token inválido o expirado") {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                window.location.href = "/login";
             }
         }
         return Promise.reject(error);
