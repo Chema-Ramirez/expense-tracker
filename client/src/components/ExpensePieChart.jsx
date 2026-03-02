@@ -1,59 +1,63 @@
-import { Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { useTheme, Box, Typography } from '@mui/material';
+import { Cell, PieChart, Pie, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { getCategoryConfig } from '../utils/categoryHelpers';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+const ExpensePieChart = ({ expenses }) => {
+    const onlyExpenses = expenses.filter(e =>
+        e.category?.toLowerCase() !== 'sueldo' &&
+        e.category?.toLowerCase() !== 'ingreso'
+    );
 
-const ExpensePieChart = ({ expenses = [] }) => {
-    const theme = useTheme();
-
-    const totals = expenses.reduce((acc, curr) => {
-        const cat = curr.category || 'Otros';
-        acc[cat] = (acc[cat] || 0) + Number(curr.amount);
+    const dataMap = onlyExpenses.reduce((acc, expense) => {
+        const cat = expense.category || 'Otros';
+        acc[cat] = (acc[cat] || 0) + Number(expense.amount);
         return acc;
     }, {});
 
-    const labels = Object.keys(totals);
-    const dataValues = Object.values(totals);
+    const chartData = Object.keys(dataMap).map(name => ({
+        name,
+        value: dataMap[name],
+        color: getCategoryConfig(name).color
+    }));
 
-    if (expenses.length === 0) {
+    if (chartData.length === 0) {
         return (
-            <Box sx={{ textAlign: 'center', py: 5 }}>
-                <Typography variant="body2" color="text.secondary">No hay datos suficientes</Typography>
-            </Box>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <p style={{ fontSize: '0.8rem', color: '#666' }}>No hay gastos para mostrar</p>
+            </div>
         );
     }
 
-    const data = {
-        labels,
-        datasets: [{
-            data: dataValues,
-            backgroundColor: [
-                theme.palette.primary.main,
-                theme.palette.secondary.main,
-                theme.palette.error.light,
-                theme.palette.warning.light,
-                theme.palette.info.light,
-                '#A5D6A7'
-            ],
-            borderWidth: 2,
-            borderColor: theme.palette.background.paper,
-            hoverOffset: 15,
-        }],
-    };
-
-    const options = {
-        cutout: '75%',
-        plugins: {
-            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
-        },
-        maintainAspectRatio: false,
-    };
-
     return (
-        <Box sx={{ height: 280, width: '100%' }}>
-            <Doughnut data={data} options={options} />
-        </Box>
+        <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+                <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                >
+                    {chartData.map((entry, index) => (
+                        <Cell
+                            key={`cell-${index}`}
+                            fill={entry.color}
+                            stroke="transparent"
+                        />
+                    ))}
+                </Pie>
+                <Tooltip
+                    contentStyle={{
+                        borderRadius: '12px',
+                        border: 'none',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    }}
+                    formatter={(value) => [`${Number(value).toFixed(2)}€`, 'Gasto']}
+                />
+                <Legend iconType="circle" />
+            </PieChart>
+        </ResponsiveContainer>
     );
 };
 

@@ -1,25 +1,12 @@
 import { ListItem, ListItemText, Typography, IconButton, Stack, Box, ListItemAvatar, Avatar } from "@mui/material";
+import { getCategoryConfig } from "../utils/categoryHelpers";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import RestaurantIcon from '@mui/icons-material/Restaurant';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import HomeIcon from '@mui/icons-material/Home';
-import WorkIcon from '@mui/icons-material/Work';
-import CategoryIcon from '@mui/icons-material/Category';
-
-const categoryIcons = {
-    comida: <RestaurantIcon fontSize="small" />,
-    compras: <ShoppingCartIcon fontSize="small" />,
-    transporte: <DirectionsCarIcon fontSize="small" />,
-    hogar: <HomeIcon fontSize="small" />,
-    sueldo: <WorkIcon fontSize="small" />,
-    otros: <CategoryIcon fontSize="small" />,
-};
 
 const ExpenseItem = ({ expense, onEdit, onDelete, showActions = false }) => {
+    const { icon, color } = getCategoryConfig(expense.category);
+
     const isIngreso = expense.category === "Sueldo";
-    const icon = categoryIcons[expense.category?.toLowerCase()] || <CategoryIcon fontSize="small" />;
 
     return (
         <ListItem
@@ -53,16 +40,15 @@ const ExpenseItem = ({ expense, onEdit, onDelete, showActions = false }) => {
                 </Typography>
             </Box>
 
-            {/* AVATAR CON ICONO DE CATEGORÍA */}
+            {/* AVATAR DINÁMICO */}
             {!showActions && (
                 <ListItemAvatar sx={{ minWidth: 45 }}>
                     <Avatar sx={{
-                        width: 35,
-                        height: 35,
-                        bgcolor: isIngreso ? 'rgba(31,191,159,0.1)' : 'action.hover',
-                        color: isIngreso ? 'primary.main' : 'text.primary',
-                        border: '1px solid',
-                        borderColor: 'divider'
+                        width: 38,
+                        height: 38,
+                        bgcolor: `${color}20`,
+                        color: color,
+                        border: `1px solid ${color}40`,
                     }}>
                         {icon}
                     </Avatar>

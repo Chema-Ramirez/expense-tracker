@@ -1,16 +1,6 @@
 import {
-    Container,
-    Typography,
-    Box,
-    Paper,
-    Fab,
-    Zoom,
-    Avatar,
-    Stack,
-    useTheme,
-    Button,
-    Skeleton,
-    Divider
+    Container, Typography, Box, Paper, Fab, Zoom, Avatar, Stack,
+    useTheme, Button, Skeleton, Divider, Snackbar, Alert
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -27,21 +17,43 @@ import ExpenseItem from "../components/ExpenseItem";
 import ModalWrapper from "../components/ModalWrapper";
 import { useExpenses } from "../hooks/useExpenses";
 import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Dashboard = () => {
     const theme = useTheme();
     const navigate = useNavigate();
+    const location = useLocation();
+
     const { user, loading: authLoading } = useAuth();
     const { expenses, addExpense, categories, loading: expensesLoading } = useExpenses();
+
     const [openModal, setOpenModal] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: "",
+        severity: "success"
+    });
+
+    const handleCloseSnackbar = () => {
+        setSnackbar({ ...snackbar, open: false });
+    };
 
     const handleAddExpense = async (data) => {
         try {
             await addExpense(data);
             setOpenModal(false);
+            setSnackbar({
+                open: true,
+                message: "¡Gasto guardado con éxito! 🐷",
+                severity: "success"
+            });
         } catch (error) {
             console.error("Error al añadir gasto:", error);
+            setSnackbar({
+                open: true,
+                message: "Hubo un error al guardar el gasto",
+                severity: "error"
+            });
         }
     };
 
@@ -85,11 +97,8 @@ const Dashboard = () => {
             <Paper
                 elevation={0}
                 sx={{
-                    p: 3,
-                    mb: 4,
-                    borderRadius: 5,
-                    border: "1px solid",
-                    borderColor: "divider",
+                    p: 3, mb: 4, borderRadius: 5, border: "1px solid", borderColor: "divider",
+                    height: 380, display: 'flex', flexDirection: 'column',
                     background: theme.palette.mode === 'light'
                         ? "linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%)"
                         : "rgba(255,255,255,0.02)"
@@ -100,19 +109,19 @@ const Dashboard = () => {
                     <Typography variant="h6" fontWeight={800}>Gastos por categoría</Typography>
                 </Stack>
 
-                <Box sx={{ height: 280, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    {expenses.length > 0 ? (
+                <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    {expensesLoading ? (
+                        <Skeleton variant="circular" width={220} height={220} animation="wave" sx={{ opacity: 0.6 }} />
+                    ) : expenses.length > 0 ? (
                         <ExpensePieChart expenses={expenses} categories={categories} />
                     ) : (
-                        <Typography variant="body2" color="text.secondary">
-                            Aún no hay gastos registrados
-                        </Typography>
+                        <Typography variant="body2" color="text.secondary">Aún no hay gastos registrados</Typography>
                     )}
                 </Box>
             </Paper>
 
             {/* ÚLTIMOS MOVIMIENTOS */}
-            <Box mb={4}>
+            <Box mb={4} sx={{ minHeight: '350px' }}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
                     <Stack direction="row" spacing={1} alignItems="center">
                         <HistoryIcon color="primary" />
@@ -129,78 +138,74 @@ const Dashboard = () => {
 
                 <Paper
                     elevation={0}
-                    sx={{
-                        p: 2,
-                        borderRadius: 5,
-                        border: "1px solid",
-                        borderColor: "divider",
-                    }}
+                    sx={{ p: 2, borderRadius: 5, border: "1px solid", borderColor: "divider" }}
                 >
                     {expensesLoading ? (
-                        <Box p={2}>
-                            <Skeleton
-                                variant="rectangular"
-                                height={150}
-                                sx={{ borderRadius: 5 }}
-                                animation="wave"
-                            />
-                        </Box>
+                        <Stack spacing={0}>
+                            {[1, 2, 3, 4].map((i) => (
+                                <Box key={i} sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    <Skeleton variant="circular" width={40} height={40} />
+                                    <Box sx={{ flex: 1 }}>
+                                        <Skeleton variant="text" width="60%" />
+                                        <Skeleton variant="text" width="40%" />
+                                    </Box>
+                                    <Skeleton variant="rounded" width={60} height={30} />
+                                </Box>
+                            ))}
+                        </Stack>
                     ) : expenses.length > 0 ? (
                         <Stack divider={<Divider variant="middle" sx={{ opacity: 0.6 }} />}>
                             {[...expenses]
                                 .sort((a, b) => new Date(b.date) - new Date(a.date))
                                 .slice(0, 4)
                                 .map((expense) => (
-                                    <ExpenseItem
-                                        key={expense._id || expense.id}
-                                        expense={expense}
-                                        showActions={false}
-                                    />
+                                    <ExpenseItem key={expense._id || expense.id} expense={expense} showActions={false} />
                                 ))
                             }
                         </Stack>
                     ) : (
                         <Box textAlign="center" py={3}>
-                            <Typography variant="body2" color="text.secondary">
-                                No hay movimientos este mes.
-                            </Typography>
+                            <Typography variant="body2" color="text.secondary">No hay movimientos este mes.</Typography>
                         </Box>
                     )}
                 </Paper>
             </Box>
 
             {/* FAB BOTÓN */}
-            <Zoom in={true} style={{ transitionDelay: '300ms' }}>
-                <Fab
-                    color="primary"
-                    aria-label="add"
-                    onClick={() => setOpenModal(true)}
-                    sx={{
-                        position: 'fixed',
-                        bottom: { xs: 30, sm: 40 },
-                        right: { xs: 20, sm: 40 },
-                        width: 65,
-                        height: 65,
-                        boxShadow: `0 10px 25px ${theme.palette.primary.main}66`,
-                        '&:hover': { transform: 'scale(1.1)' },
-                        transition: 'all 0.2s ease-in-out'
-                    }}
-                >
-                    <AddIcon sx={{ fontSize: 32 }} />
-                </Fab>
-            </Zoom>
+            {location.pathname === "/dashboard" && (
+                <Zoom in={!expensesLoading} unmountOnExit>
+                    <Fab
+                        color="primary"
+                        onClick={() => setOpenModal(true)}
+                        sx={{
+                            position: 'fixed',
+                            bottom: { xs: 95, sm: 40 },
+                            right: { xs: 20, sm: 40 },
+                            zIndex: 2000,
+                            boxShadow: `0 8px 25px ${theme.palette.primary.main}60`,
+                        }}
+                    >
+                        <AddIcon sx={{ fontSize: 30 }} />
+                    </Fab>
+                </Zoom>
+            )}
 
-            {/* MODAL WRAPPER */}
-            <ModalWrapper
-                open={openModal}
-                onClose={() => setOpenModal(false)}
-                title="Nuevo Gasto"
-            >
-                <ExpenseForm
-                    onSubmit={handleAddExpense}
-                    onCancel={() => setOpenModal(false)}
-                />
+            {/* MODAL & SNACKBAR */}
+            <ModalWrapper open={openModal} onClose={() => setOpenModal(false)} title="Nuevo Gasto">
+                <ExpenseForm onSubmit={handleAddExpense} onCancel={() => setOpenModal(false)} />
             </ModalWrapper>
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                sx={{ bottom: { xs: 90, sm: 20 } }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} variant="filled" sx={{ width: '100%', borderRadius: 3 }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

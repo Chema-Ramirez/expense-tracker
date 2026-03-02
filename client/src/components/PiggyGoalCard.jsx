@@ -2,18 +2,28 @@ import { Paper, Typography, Box, LinearProgress, IconButton, Stack, Button, Text
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useState, useEffect } from "react";
 
 const PiggyGoalCard = ({ id, name, saved = 0, target = 0, suggestedAmount = 0, onUpdate, onDelete }) => {
     const progress = target > 0 ? Math.min((saved / target) * 100, 100) : 0;
     const [isEditing, setIsEditing] = useState(false);
     const [tempSuggestion, setTempSuggestion] = useState(suggestedAmount);
+    const [addAmount, setAddAmount] = useState("");
 
     useEffect(() => {
         setTempSuggestion(suggestedAmount);
     }, [suggestedAmount]);
 
-    const handleSave = () => {
+    const handleQuickAdd = () => {
+        const val = Number(addAmount);
+        if (val > 0) {
+            onUpdate?.(id, { currentAmount: saved + val });
+            setAddAmount("");
+        }
+    };
+
+    const handleSaveSuggestion = () => {
         const val = Number(tempSuggestion);
         if (!isNaN(val)) {
             onUpdate?.(id, { suggestedAmount: val });
@@ -38,6 +48,7 @@ const PiggyGoalCard = ({ id, name, saved = 0, target = 0, suggestedAmount = 0, o
                 }
             }}
         >
+            {/* HEADER */}
             <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={1}>
                 <Box>
                     <Stack direction="row" spacing={1} alignItems="center">
@@ -51,23 +62,20 @@ const PiggyGoalCard = ({ id, name, saved = 0, target = 0, suggestedAmount = 0, o
                 <IconButton
                     size="small"
                     onClick={() => onDelete?.(id)}
-                    sx={{
-                        color: 'error.light',
-                        bgcolor: 'error.lightest',
-                        '&:hover': { bgcolor: '#ffebee' }
-                    }}
+                    sx={{ color: 'error.light', bgcolor: '#fff5f5', '&:hover': { bgcolor: '#ffebee' } }}
                 >
                     <DeleteIcon fontSize="small" />
                 </IconButton>
             </Stack>
 
+            {/* BARRA DE PROGRESO */}
             <Box sx={{ my: 2 }}>
                 <Stack direction="row" justifyContent="space-between" mb={0.5}>
                     <Typography variant="caption" fontWeight={900} color={progress === 100 ? "success.main" : "primary"}>
                         {progress.toFixed(0)}%
                     </Typography>
                     <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                        {target - saved > 0 ? `Faltan ${(target - saved).toLocaleString()} €` : '¡Objetivo logrado!'}
+                        {target - saved > 0 ? `Faltan ${(target - saved).toLocaleString()} €` : '¡Completado! 🎉'}
                     </Typography>
                 </Stack>
                 <LinearProgress
@@ -85,20 +93,46 @@ const PiggyGoalCard = ({ id, name, saved = 0, target = 0, suggestedAmount = 0, o
                 />
             </Box>
 
+            {/* INPUT AHORRO RÁPIDO */}
+            <Stack direction="row" spacing={1} sx={{ mb: 2, mt: 3 }}>
+                <TextField
+                    size="small"
+                    fullWidth
+                    placeholder="Sumar dinero..."
+                    type="number"
+                    value={addAmount}
+                    onChange={(e) => setAddAmount(e.target.value)}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                        sx: { borderRadius: 3, fontSize: '0.85rem' }
+                    }}
+                />
+                <Button
+                    variant="contained"
+                    disableElevation
+                    onClick={handleQuickAdd}
+                    disabled={!addAmount || addAmount <= 0}
+                    startIcon={<AddCircleIcon />}
+                    sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 700, px: 3, bgcolor: '#2e7d32' }}
+                >
+                    Ahorrar
+                </Button>
+            </Stack>
+
+            {/* FOOTER */}
             <Box
                 sx={{
                     p: 1.5,
                     borderRadius: 3,
-                    bgcolor: (theme) => theme.palette.mode === 'light' ? '#f8fafc' : 'rgba(255,255,255,0.03)',
+                    bgcolor: 'action.hover',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    border: '1px solid transparent',
-                    borderColor: isEditing ? 'primary.main' : 'transparent'
+                    minHeight: '48px'
                 }}
             >
                 {isEditing ? (
-                    <Stack direction="row" spacing={1} width="100%">
+                    <Stack direction="row" spacing={1} width="100%" alignItems="center">
                         <TextField
                             fullWidth
                             size="small"
@@ -116,7 +150,7 @@ const PiggyGoalCard = ({ id, name, saved = 0, target = 0, suggestedAmount = 0, o
                         <Button
                             variant="contained"
                             size="small"
-                            onClick={handleSave}
+                            onClick={handleSaveSuggestion}
                             sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700 }}
                         >
                             Guardar
@@ -125,7 +159,7 @@ const PiggyGoalCard = ({ id, name, saved = 0, target = 0, suggestedAmount = 0, o
                 ) : (
                     <>
                         <Box>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem' }}>
+                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>
                                 Ahorro mensual sugerido
                             </Typography>
                             <Typography variant="body2" fontWeight={800} color="primary.main">

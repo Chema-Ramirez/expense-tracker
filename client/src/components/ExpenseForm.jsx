@@ -4,13 +4,14 @@ import {
     ToggleButton, ToggleButtonGroup, Typography, Box, CircularProgress
 } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import { getCategoryConfig } from "../utils/categoryHelpers";
 
 const CATEGORIES = [
     "Comida", "Transporte", "Ocio", "Sueldo", "Vivienda", "Salud", "Otros"
 ];
 
 const ExpenseForm = ({ onSubmit, initialData = null }) => {
-
     const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState(() => {
@@ -33,7 +34,7 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCategoryChange = (event, newCategory) => {
+    const handleCategoryChange = (_, newCategory) => {
         if (newCategory !== null) {
             setFormData(prev => ({ ...prev, category: newCategory }));
         }
@@ -41,7 +42,6 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (loading) return;
 
         setLoading(true);
@@ -70,7 +70,7 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
         <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
                 <Box>
-                    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+                    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ mb: 1.5, display: 'block', letterSpacing: 1 }}>
                         CATEGORÍA
                     </Typography>
                     <ToggleButtonGroup
@@ -84,16 +84,35 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                             flexWrap: "wrap",
                             gap: 1,
                             "& .MuiToggleButton-root": {
-                                borderRadius: 2,
+                                borderRadius: 3,
                                 border: "1px solid !important",
                                 flexGrow: 1,
-                                borderColor: "divider"
+                                borderColor: "divider",
+                                textTransform: 'capitalize',
+                                px: 2,
+                                py: 1,
+                                transition: 'all 0.2s ease',
+                                color: 'text.secondary',
+                                "&.Mui-selected": {
+                                    bgcolor: `${getCategoryConfig(formData.category).color}20`,
+                                    color: getCategoryConfig(formData.category).color,
+                                    borderColor: `${getCategoryConfig(formData.category).color} !important`,
+                                    fontWeight: 'bold',
+                                    "&:hover": {
+                                        bgcolor: `${getCategoryConfig(formData.category).color}30`,
+                                    }
+                                }
                             }
                         }}
                     >
                         {CATEGORIES.map(cat => (
-                            <ToggleButton key={cat} value={cat} sx={{ px: 2, py: 0.5 }}>
-                                {cat}
+                            <ToggleButton key={cat} value={cat}>
+                                <Stack direction="row" spacing={1} alignItems="center">
+                                    <Box sx={{ fontSize: '1.1rem', display: 'flex' }}>
+                                        {getCategoryConfig(cat).icon}
+                                    </Box>
+                                    <Typography variant="body2">{cat}</Typography>
+                                </Stack>
                             </ToggleButton>
                         ))}
                     </ToggleButtonGroup>
@@ -111,6 +130,7 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                     inputProps={{ step: "0.01" }}
                     InputProps={{
                         startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                        sx: { borderRadius: 3, fontWeight: 700, fontSize: '1.2rem' }
                     }}
                 />
 
@@ -122,6 +142,7 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                     disabled={loading}
                     value={formData.description}
                     onChange={handleChange}
+                    InputProps={{ sx: { borderRadius: 3 } }}
                 />
 
                 <TextField
@@ -133,6 +154,7 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                     value={formData.date}
                     onChange={handleChange}
                     InputLabelProps={{ shrink: true }}
+                    InputProps={{ sx: { borderRadius: 3 } }}
                 />
 
                 <Button
@@ -142,12 +164,18 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                     type="submit"
                     size="large"
                     disabled={loading}
-                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <AddCircleOutlineIcon />}
-                    sx={{ py: 1.5, mt: 2, fontWeight: 'bold' }}
+                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : (initialData ? <EditIcon /> : <AddCircleOutlineIcon />)}
+                    sx={{
+                        py: 1.8,
+                        mt: 2,
+                        fontWeight: 800,
+                        borderRadius: 4,
+                        boxShadow: `0 8px 20px ${getCategoryConfig(formData.category).color}40`,
+                    }}
                 >
                     {loading
                         ? "Guardando..."
-                        : (initialData ? "Actualizar Registro" : "Añadir Registro")
+                        : (initialData ? "Actualizar Registro" : "Confirmar Gasto")
                     }
                 </Button>
             </Stack>

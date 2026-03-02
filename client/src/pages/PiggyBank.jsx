@@ -1,5 +1,4 @@
-import { Container, Typography, Box, Stack, Fab, Zoom, CircularProgress } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { Container, Typography, Box, Stack, CircularProgress } from "@mui/material"; // Eliminados Fab y Zoom
 import { useState } from "react";
 
 // HOOKS Y COMPONENTS
@@ -76,32 +75,15 @@ const PiggyBank = () => {
                             borderColor="divider"
                         >
                             <Typography variant="h6" fontWeight={700} color="text.secondary" gutterBottom>
-                                ¿Tienes un nuevo sueño?
+                                No hay metas activas
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Haz clic en el botón + para empezar a ahorrar para ese viaje o capricho.
+                                Tu hucha está esperando un nuevo objetivo.
                             </Typography>
                         </Box>
                     )}
                 </Stack>
             )}
-
-            {/* BOTÓN AÑADIR META */}
-            <Zoom in={!loading}>
-                <Fab
-                    color="primary"
-                    aria-label="add-goal"
-                    onClick={() => setOpenModal(true)}
-                    sx={{
-                        position: 'fixed',
-                        bottom: 30,
-                        right: 20,
-                        boxShadow: (theme) => `0 10px 25px ${theme.palette.primary.light}80`
-                    }}
-                >
-                    <AddIcon />
-                </Fab>
-            </Zoom>
 
             {/* MODAL NUEVA META */}
             <ModalWrapper

@@ -57,12 +57,28 @@ export const useSavingsGoals = () => {
         fetchGoals();
     }, [fetchGoals]);
 
+    const addMoneyToGoal = async (goal, amountToAdd) => {
+        try {
+            const newAmount = Number(goal.currentAmount || 0) + Number(amountToAdd);
+            await updateGoal(goal._id || goal.id, {
+                ...goal,
+                currentAmount: newAmount
+            });
+
+            return true;
+        } catch (error) {
+            console.error("Error al añadir dinero a la hucha:", error);
+            return false;
+        }
+    };
+
     return {
         goals,
         loading,
         addGoal,
         updateGoal,
         deleteGoal,
-        fetchGoals
+        fetchGoals,
+        addMoneyToGoal
     };
 };
