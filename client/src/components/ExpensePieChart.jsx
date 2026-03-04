@@ -2,31 +2,43 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { Box, Typography, Stack } from '@mui/material';
 import { getCategoryConfig, CATEGORIES } from "../utils/categoryHelpers";
 
-const CustomLegend = (props) => {
-    const { payload } = props;
+const CustomLegend = ({ payload, activeCategories = [] }) => {
     if (!payload) return null;
 
     return (
         <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={2} mt={3} sx={{ px: 2 }}>
-            {payload.map((entry, index) => (
-                <Stack key={`item-${index}`} direction="row" alignItems="center" spacing={0.6}>
-                    <Box sx={{
-                        color: entry.payload.color,
-                        display: "flex",
-                        fontSize: "1.1rem"
-                    }}>
-                        {entry.payload.icon}
-                    </Box>
-                    <Typography variant="caption" fontWeight={800} color="text.secondary">
-                        {entry.value}
-                    </Typography>
-                </Stack>
-            ))}
+            {payload.map((entry, index) => {
+                const isInactive = activeCategories.length > 0 && !activeCategories.includes(entry.value);
+
+                return (
+                    <Stack
+                        key={`item-${index}`}
+                        direction="row"
+                        alignItems="center"
+                        spacing={0.6}
+                        sx={{
+                            opacity: isInactive ? 0.4 : 1,
+                            transition: 'opacity 0.3s ease'
+                        }}
+                    >
+                        <Box sx={{
+                            color: entry.payload.color,
+                            display: "flex",
+                            fontSize: "1.1rem"
+                        }}>
+                            {entry.payload.icon}
+                        </Box>
+                        <Typography variant="caption" fontWeight={800} color="text.secondary">
+                            {entry.value}
+                        </Typography>
+                    </Stack>
+                );
+            })}
         </Stack>
     );
 };
 
-const ExpensePieChart = ({ expenses }) => {
+const ExpensePieChart = ({ expenses, onSegmentClick, activeCategories = [] }) => {
     const validExpenseIds = CATEGORIES.map(cat => cat.id.toLowerCase());
 
     const onlyExpenses = expenses.filter(item => {
@@ -71,30 +83,47 @@ const ExpensePieChart = ({ expenses }) => {
                     <Pie
                         data={data}
                         cx="50%"
-                        cy="45%"
+                        cy="50%"
                         innerRadius={65}
                         outerRadius={85}
                         paddingAngle={6}
                         dataKey="value"
                         nameKey="name"
                         stroke="none"
+                        onClick={(entry) => onSegmentClick(entry.name)}
+                        style={{ cursor: 'pointer', outline: 'none' }}
+                        tabIndex="-1"
                     >
-                        {data.map((entry, index) => (
-                            <Cell
-                                key={`cell-${index}`}
-                                fill={entry.color}
-                                style={{ outline: 'none' }}
-                            />
-                        ))}
+                        {data.map((entry, index) => {
+                            const isInactive = activeCategories.length > 0 && !activeCategories.includes(entry.name);
+
+                            return (
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill={entry.color}
+                                    opacity={isInactive ? 0.3 : 1}
+                                    style={{
+                                        outline: 'none',
+                                        transition: 'all 0.3s ease',
+                                        filter: isInactive ? 'none' : `drop-shadow(0px 4px 12px ${entry.color}40)`
+                                    }}
+                                    stroke="none"
+                                />
+                            );
+                        })}
                     </Pie>
                     <Tooltip
                         formatter={(value, name, props) => {
                             const finalName = name === 'value' ? props.payload.name : name;
                             return [`${value.toLocaleString('es-ES')} €`, finalName];
                         }}
-                        contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
+                        contentStyle={{
+                            borderRadius: '16px',
+                            border: 'none',
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+                        }}
                     />
-                    <Legend content={<CustomLegend />} />
+                    <Legend content={<CustomLegend activeCategories={activeCategories} />} />
                 </PieChart>
             </ResponsiveContainer>
         </Box>

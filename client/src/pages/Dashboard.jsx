@@ -8,6 +8,8 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HistoryIcon from '@mui/icons-material/History';
 import { useState } from "react";
+import CloseIcon from '@mui/icons-material/Close';
+import { getCategoryConfig } from "../utils/categoryHelpers";
 
 // COMPONENTES & HOOKS
 import MonthlySummary from "../components/MonthlySummary";
@@ -19,12 +21,15 @@ import { useExpenses } from "../hooks/useExpenses";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
+
 const Dashboard = () => {
     const theme = useTheme();
     const navigate = useNavigate();
 
     const { user, loading: authLoading } = useAuth();
     const { expenses, addExpense, loading: expensesLoading } = useExpenses();
+
+    const [selectedCategories, setSelectedCategories] = useState([]);
 
     const [openModal, setOpenModal] = useState(false);
     const [snackbar, setSnackbar] = useState({
@@ -56,6 +61,18 @@ const Dashboard = () => {
         }
     };
 
+    const handleToggleCategory = (catName) => {
+        setSelectedCategories(prev =>
+            prev.includes(catName)
+                ? prev.filter(c => c !== catName)
+                : [...prev, catName]
+        );
+    };
+
+    const filteredExpenses = selectedCategories.length > 0
+        ? expenses.filter(e => selectedCategories.includes(getCategoryConfig(e.category).label))
+        : expenses;
+
     const renderHeader = () => {
         if (authLoading) return <Skeleton variant="text" width={200} height={80} />;
         return (
@@ -86,10 +103,8 @@ const Dashboard = () => {
 
     return (
         <Container maxWidth="sm" sx={{ pb: 15 }}>
-            {/* HEADER */}
             <Box py={3}>{renderHeader()}</Box>
 
-            {/* RESUMEN MENSUAL */}
             <Box mb={4}>
                 <MonthlySummary expenses={expenses} />
             </Box>
@@ -101,24 +116,83 @@ const Dashboard = () => {
                     p: 3, mb: 4, borderRadius: 5, border: "1px solid", borderColor: "divider",
                     background: theme.palette.mode === 'light'
                         ? "linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%)"
-                        : "rgba(255,255,255,0.03)"
+                        : "rgba(255,255,255,0.03)",
+                    overflow: 'hidden',
+                    position: 'relative',
+                    '&:focus-within': { outline: 'none' },
+                    '& .recharts-surface:focus': { outline: 'none' }
                 }}
             >
-                <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-                    <TrendingUpIcon sx={{ color: 'primary.main' }} />
-                    <Typography variant="subtitle1" fontWeight={800}>Distribución de Gastos</Typography>
-                </Stack>
 
-                <Box sx={{ minHeight: 250, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Box sx={{ height: 40, mb: 2 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <TrendingUpIcon sx={{ color: 'primary.main' }} />
+                            <Typography variant="subtitle1" fontWeight={800}>Gráfica de Gastos</Typography>
+                        </Stack>
+
+                        {selectedCategories.length > 0 && (
+                            <Button
+                                size="small"
+                                onClick={() => setSelectedCategories([])}
+                                sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+                            >
+                                Limpiar ({selectedCategories.length})
+                            </Button>
+                        )}
+                    </Stack>
+                </Box>
+
+                <Box sx={{ height: 320, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     {expensesLoading ? (
                         <Skeleton variant="circular" width={180} height={180} />
                     ) : expenses.length > 0 ? (
-                        <ExpensePieChart expenses={expenses} />
+                        <ExpensePieChart
+                            expenses={expenses}
+                            activeCategories={selectedCategories}
+                            onSegmentClick={handleToggleCategory}
+                        />
                     ) : (
                         <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                            Sin datos suficientes para graficar
+                            Sin datos suficientes
                         </Typography>
                     )}
+                </Box>
+
+                <Box sx={{
+                    minHeight: 45,
+                    mt: 1,
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 1,
+                    maxHeight: 90,
+                    overflowY: 'auto',
+                    '&::-webkit-scrollbar': { display: 'none' }
+                }}>
+                    {selectedCategories.map(cat => (
+                        <Zoom key={cat} in={true}>
+                            <Box
+                                onClick={() => handleToggleCategory(cat)}
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    bgcolor: 'primary.main',
+                                    color: 'white',
+                                    px: 1.5,
+                                    py: 0.5,
+                                    borderRadius: 2,
+                                    cursor: 'pointer',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 800,
+                                    transition: '0.2s',
+                                    '&:hover': { transform: 'scale(0.95)', opacity: 0.9 }
+                                }}
+                            >
+                                {cat} <CloseIcon sx={{ fontSize: 14 }} />
+                            </Box>
+                        </Zoom>
+                    ))}
                 </Box>
             </Paper>
 
@@ -127,7 +201,13 @@ const Dashboard = () => {
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2} px={1}>
                     <Stack direction="row" spacing={1} alignItems="center">
                         <HistoryIcon sx={{ color: 'primary.main', fontSize: 20 }} />
-                        <Typography variant="subtitle1" fontWeight={800}>Actividad Reciente</Typography>
+                        <Typography variant="subtitle1" fontWeight={800}>
+                            {selectedCategories.length === 1
+                                ? `Gastos en ${selectedCategories[0]}`
+                                : selectedCategories.length > 1
+                                    ? 'Filtro múltiple activo'
+                                    : 'Actividad Reciente'}
+                        </Typography>
                     </Stack>
                     <Button
                         size="small"
@@ -139,42 +219,20 @@ const Dashboard = () => {
                     </Button>
                 </Stack>
 
-                {expensesLoading ? (
-                    <Stack spacing={2}>
-                        {[1, 2, 3].map((i) => (
-                            <Box key={i} sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2, bgcolor: 'background.paper', borderRadius: 4 }}>
-                                <Skeleton variant="circular" width={40} height={40} />
-                                <Box sx={{ flex: 1 }}>
-                                    <Skeleton variant="text" width="60%" />
-                                    <Skeleton variant="text" width="40%" />
-                                </Box>
-                            </Box>
-                        ))}
-                    </Stack>
-                ) : expenses.length > 0 ? (
-                    <Stack spacing={1.5}>
-                        {[...expenses]
+                <Stack spacing={1.5}>
+                    {filteredExpenses.length > 0 ? (
+                        [...filteredExpenses]
                             .sort((a, b) => new Date(b.date) - new Date(a.date))
                             .slice(0, 4)
                             .map((expense) => (
-                                <ExpenseItem
-                                    key={expense._id || expense.id}
-                                    expense={expense}
-                                    showActions={false}
-                                />
+                                <ExpenseItem key={expense._id || expense.id} expense={expense} showActions={false} />
                             ))
-                        }
-                    </Stack>
-                ) : (
-                    <Paper
-                        elevation={0}
-                        sx={{ p: 4, borderRadius: 5, border: '2px dashed', borderColor: 'divider', bgcolor: 'transparent', textAlign: 'center' }}
-                    >
-                        <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                            No hay movimientos registrados
+                    ) : (
+                        <Typography variant="body2" color="text.secondary" textAlign="center" py={3}>
+                            No hay movimientos que coincidan
                         </Typography>
-                    </Paper>
-                )}
+                    )}
+                </Stack>
             </Box>
 
             {/* FAB BOTÓN */}
