@@ -1,15 +1,17 @@
 import { useState } from "react";
 import {
     Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, Button, Stack, InputAdornment, Typography
+    TextField, Button, Stack, InputAdornment, Typography, Box, MenuItem
 } from "@mui/material";
-import TargetIcon from '@mui/icons-material/Flag';
+import { CATEGORIES } from "../utils/categoryHelpers";
 
 const GoalFormModal = ({ open, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
         title: "",
         targetAmount: "",
-        currentAmount: 0
+        currentAmount: 0,
+        category: "ahorro",
+        deadline: ""
     });
 
     const handleChange = (e) => {
@@ -19,86 +21,54 @@ const GoalFormModal = ({ open, onClose, onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!formData.title || !formData.targetAmount) return;
-
         onSubmit({
-            ...formData,
+            name: formData.title,
+            category: formData.category,
             targetAmount: Number(formData.targetAmount),
-            currentAmount: Number(formData.currentAmount) || 0
+            currentAmount: Number(formData.currentAmount) || 0,
+            deadline: formData.deadline
         });
-
-        setFormData({ title: "", targetAmount: "", currentAmount: 0 });
+        setFormData({ title: "", targetAmount: "", currentAmount: 0, category: "ahorro", deadline: "" });
         onClose();
     };
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 4, p: 1 } }}>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 6, p: 1 } }}>
             <form onSubmit={handleSubmit}>
-                <DialogTitle sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <TargetIcon color="primary" /> Nueva Meta de Ahorro
+                <DialogTitle sx={{ textAlign: 'center', pt: 4, pb: 1 }}>
+                    <Typography variant="h6" fontWeight={800}>Nueva Meta de Ahorro</Typography>
+                    <Box sx={{ width: 100, height: 4, bgcolor: 'primary.main', borderRadius: 2, margin: '12px auto 0' }} />
                 </DialogTitle>
 
                 <DialogContent>
-                    <Typography variant="body2" color="text.secondary" mb={3}>
-                        Define tu próximo objetivo y empieza a ahorrar paso a paso. 🐷
-                    </Typography>
+                    <Stack spacing={3} mt={1}>
+                        <TextField label="¿Qué quieres conseguir?" name="title" fullWidth required value={formData.title} onChange={handleChange} autoFocus />
 
-                    <Stack spacing={3}>
-                        <TextField
-                            label="¿Qué quieres conseguir?"
-                            name="title"
-                            placeholder="Ej: Viaje a Japón, Coche nuevo..."
-                            fullWidth
-                            required
-                            value={formData.title}
-                            onChange={handleChange}
-                            autoFocus
-                        />
+                        <TextField select label="Categoría" name="category" fullWidth value={formData.category} onChange={handleChange}>
+                            {CATEGORIES.map((option) => (
+                                <MenuItem key={option.id} value={option.id}>
+                                    <Stack direction="row" spacing={1} alignItems="center">
+                                        <Box sx={{ display: 'flex', fontSize: '1.2rem' }}>{option.icon}</Box>
+                                        <Typography>{option.label}</Typography>
+                                    </Stack>
+                                </MenuItem>
+                            ))}
+                        </TextField>
 
-                        <TextField
-                            label="Meta total"
-                            name="targetAmount"
-                            type="number"
-                            fullWidth
-                            required
-                            value={formData.targetAmount}
-                            onChange={handleChange}
-                            slotProps={{
-                                input: {
-                                    startAdornment: <InputAdornment position="start">€</InputAdornment>,
-                                }
-                            }}
-                        />
+                        <TextField label="Meta total" name="targetAmount" type="number" fullWidth required value={formData.targetAmount} onChange={handleChange}
+                            InputProps={{ startAdornment: <InputAdornment position="start">€</InputAdornment> }} />
 
-                        <TextField
-                            label="Ahorro actual (opcional)"
-                            name="currentAmount"
-                            type="number"
-                            fullWidth
-                            value={formData.currentAmount}
-                            onChange={handleChange}
-                            helperText="¿Ya tienes algo ahorrado para esto?"
-                            slotProps={{
-                                input: {
-                                    startAdornment: <InputAdornment position="start">€</InputAdornment>,
-                                }
-                            }}
-                        />
+                        <TextField label="Ahorro actual (opcional)" name="currentAmount" type="number" fullWidth value={formData.currentAmount} onChange={handleChange}
+                            InputProps={{ startAdornment: <InputAdornment position="start">€</InputAdornment> }} />
+
+                        <TextField label="¿Para cuándo lo quieres?" name="deadline" type="date" fullWidth value={formData.deadline} onChange={handleChange}
+                            slotProps={{ inputLabel: { shrink: true } }} helperText="Para calcular tu plan mensual" />
                     </Stack>
                 </DialogContent>
 
-                <DialogActions sx={{ p: 3 }}>
-                    <Button onClick={onClose} color="inherit" sx={{ fontWeight: 700 }}>
-                        Cancelar
-                    </Button>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        disableElevation
-                        sx={{ bgcolor: '#2e7d32', fontWeight: 700, borderRadius: 2, px: 4 }}
-                    >
-                        Crear Hucha
-                    </Button>
+                <DialogActions sx={{ p: 3, gap: 2 }}>
+                    <Button fullWidth onClick={onClose} sx={{ color: 'text.secondary', fontWeight: 700 }}>Cancelar</Button>
+                    <Button fullWidth type="submit" variant="contained" sx={{ borderRadius: 3, fontWeight: 700 }}>Crear Meta</Button>
                 </DialogActions>
             </form>
         </Dialog>

@@ -1,84 +1,138 @@
-import { ListItem, ListItemText, Typography, IconButton, Stack, Box, ListItemAvatar, Avatar } from "@mui/material";
-import { getCategoryConfig } from "../utils/categoryHelpers";
+import { useState } from "react";
+import {
+    ListItem, Stack, Avatar, Box, Typography,
+    Collapse, Divider, Button, Paper, useTheme
+} from "@mui/material";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { getCategoryConfig } from "../utils/categoryHelpers";
 
-const ExpenseItem = ({ expense, onEdit, onDelete, showActions = false }) => {
-    const { icon, color } = getCategoryConfig(expense.category);
+const ExpenseItem = ({ expense, onEdit, onDelete }) => {
+    const theme = useTheme();
+    const [isExpanded, setIsExpanded] = useState(false);
 
-    const isIngreso = expense.category === "Sueldo";
+    const categoryName = expense.category?.toLowerCase().trim() || "otros";
+    const config = getCategoryConfig(categoryName);
+    const isIngreso = categoryName === 'sueldo' || categoryName === 'ingreso';
 
     return (
-        <ListItem
+        <Paper
+            elevation={0}
+            onClick={() => setIsExpanded(!isExpanded)}
             sx={{
-                px: showActions ? 2 : 0,
-                py: 1.5,
-                borderBottom: showActions ? "1px solid" : "none",
-                borderColor: "divider",
-                "&:last-child": { borderBottom: "none" },
-            }}
-            secondaryAction={
-                showActions && (
-                    <Stack direction="row" spacing={0.5}>
-                        <IconButton edge="end" size="small" onClick={() => onEdit?.(expense)}>
-                            <EditIcon fontSize="small" sx={{ color: "text.secondary" }} />
-                        </IconButton>
-                        <IconButton edge="end" size="small" onClick={() => onDelete?.(expense._id)}>
-                            <DeleteIcon fontSize="small" sx={{ color: "error.light" }} />
-                        </IconButton>
-                    </Stack>
-                )
-            }
-        >
-            {/* FECHA ESTILO CALENDARIO */}
-            <Box sx={{ mr: 2, display: "flex", flexDirection: "column", alignItems: "center", minWidth: 40 }}>
-                <Typography variant="caption" fontWeight={800} color="text.secondary" sx={{ lineHeight: 1 }}>
-                    {new Date(expense.date).getDate()}
-                </Typography>
-                <Typography variant="caption" sx={{ textTransform: 'uppercase', fontSize: '0.6rem', fontWeight: 700, opacity: 0.7 }}>
-                    {new Date(expense.date).toLocaleString('es-ES', { month: 'short' }).replace('.', '')}
-                </Typography>
-            </Box>
-
-            {/* AVATAR DINÁMICO */}
-            {!showActions && (
-                <ListItemAvatar sx={{ minWidth: 45 }}>
-                    <Avatar sx={{
-                        width: 38,
-                        height: 38,
-                        bgcolor: `${color}20`,
-                        color: color,
-                        border: `1px solid ${color}40`,
-                    }}>
-                        {icon}
-                    </Avatar>
-                </ListItemAvatar>
-            )}
-
-            <ListItemText
-                primary={
-                    <Typography variant="body2" fontWeight={700}>
-                        {expense.description || expense.category}
-                    </Typography>
+                mb: 1.5,
+                borderRadius: 4,
+                border: "1px solid",
+                borderColor: isExpanded ? config.color : "divider",
+                transition: "all 0.2s ease-in-out",
+                cursor: 'pointer',
+                overflow: 'hidden',
+                bgcolor: isExpanded
+                    ? (theme.palette.mode === 'light' ? `${config.color}05` : `${config.color}15`)
+                    : 'background.paper',
+                '&:hover': {
+                    borderColor: config.color,
+                    transform: isExpanded ? 'none' : 'translateY(-2px)'
                 }
-                secondary={expense.description ? (
-                    <Typography variant="caption" sx={{ textTransform: 'capitalize' }}>
-                        {expense.category}
-                    </Typography>
-                ) : null}
-            />
+            }}
+        >
+            <ListItem disablePadding sx={{ px: 2, py: 1.8 }}>
+                <Stack direction="row" spacing={2} alignItems="center" sx={{ width: '100%' }}>
+                    {/* AVATAR */}
+                    <Avatar sx={{
+                        bgcolor: `${config.color}15`,
+                        color: config.color,
+                        width: 42, height: 42, borderRadius: 2.5,
+                        fontSize: '1.2rem'
+                    }}>
+                        {config.icon}
+                    </Avatar>
 
-            <Typography
-                variant="body2"
-                fontWeight={900}
-                sx={{
-                    mr: showActions ? 2 : 0,
-                    color: isIngreso ? "primary.main" : "text.primary"
-                }}
-            >
-                {isIngreso ? "+" : "-"}{Number(expense.amount).toLocaleString('es-ES', { minimumFractionDigits: 2 })} €
-            </Typography>
-        </ListItem>
+                    {/* TEXTO PRINCIPAL */}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="body1" fontWeight={800} noWrap={!isExpanded} sx={{ fontSize: '0.95rem' }}>
+                            {expense.description}
+                        </Typography>
+                        {!isExpanded && (
+                            <Typography variant="caption" color="text.disabled" fontWeight={600}>
+                                {new Date(expense.date).toLocaleDateString()} • {expense.category}
+                            </Typography>
+                        )}
+                    </Box>
+
+                    {/* IMPORTE */}
+                    <Typography
+                        variant="body1"
+                        fontWeight={900}
+                        sx={{
+                            whiteSpace: "nowrap",
+                            ml: 1,
+                            color: isIngreso ? "success.main" : "error.main"
+                        }}
+                    >
+                        {isIngreso ? "+" : "-"} {Number(expense.amount).toLocaleString('es-ES')}€
+                    </Typography>
+
+                    {/* ICONO DE FLECHA */}
+                    <ExpandMoreIcon sx={{
+                        transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: '0.3s',
+                        color: 'text.disabled',
+                        fontSize: '1.1rem'
+                    }} />
+                </Stack>
+            </ListItem>
+
+            {/* SECCIÓN EXPANDIBLE */}
+            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+                <Divider sx={{ mx: 2, opacity: 0.5 }} />
+                <Box sx={{ p: 2, bgcolor: `${config.color}05` }}>
+                    <Stack spacing={2}>
+                        <Box>
+                            <Stack direction="row" justifyContent="space-between" mb={1}>
+                                <Typography variant="caption" color="text.secondary" fontWeight={800}>DETALLES</Typography>
+                                <Typography variant="caption" color="text.secondary" fontWeight={800}>
+                                    {new Date(expense.date).toLocaleDateString('es-ES', { dateStyle: 'long' })}
+                                </Typography>
+                            </Stack>
+                            <Typography variant="body2" sx={{ bgcolor: 'background.paper', p: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                                {expense.description || "Sin descripción adicional"}
+                            </Typography>
+                        </Box>
+
+                        {/* BOTONES DE ACCIÓN */}
+                        <Stack direction="row" spacing={1} justifyContent="flex-end">
+                            <Button
+                                size="small"
+                                variant="outlined"
+                                startIcon={<EditIcon />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEdit(expense);
+                                }}
+                                sx={{ borderRadius: 2, fontWeight: 800 }}
+                            >
+                                Editar
+                            </Button>
+                            <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
+                                startIcon={<DeleteIcon />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete(expense._id || expense.id);
+                                }}
+                                sx={{ borderRadius: 2, fontWeight: 800 }}
+                            >
+                                Borrar
+                            </Button>
+                        </Stack>
+                    </Stack>
+                </Box>
+            </Collapse>
+        </Paper>
     );
 };
 

@@ -3,7 +3,7 @@ const SavingsGoal = require("../models/SavingsGoal");
 // CREATE
 const createSavingsGoal = async (req, res) => {
     try {
-        const { name, targetAmount } = req.body;
+        const { name, targetAmount, category, suggestedAmount } = req.body;
 
         if (!name || !targetAmount) {
             return res.status(400).json({ message: "Se requiere Nombre y Cantidad Objetivo" });
@@ -12,6 +12,8 @@ const createSavingsGoal = async (req, res) => {
         const goal = await SavingsGoal.create({
             name,
             targetAmount,
+            category: category || "otros",
+            suggestedAmount: suggestedAmount || 0,
             currentAmount: 0,
             user: req.user.id,
         });

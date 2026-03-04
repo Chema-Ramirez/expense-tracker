@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
     TextField, Button, Stack, InputAdornment,
-    ToggleButton, ToggleButtonGroup, Typography, Box, CircularProgress
+    ToggleButton, ToggleButtonGroup, Typography, Box, CircularProgress, Avatar, Zoom
 } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -28,6 +28,8 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
             date: new Date().toISOString().split('T')[0]
         };
     });
+
+    const currentCategoryStyle = getCategoryConfig(formData.category);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -69,9 +71,33 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
     return (
         <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
+
+                {/* CABECERA DINÁMICA */}
+                <Box display="flex" flexDirection="column" alignItems="center" py={2}>
+                    <Zoom key={formData.category} in={true}>
+                        <Avatar
+                            sx={{
+                                width: 80,
+                                height: 80,
+                                bgcolor: `${currentCategoryStyle.color}15`,
+                                color: currentCategoryStyle.color,
+                                fontSize: "2.5rem",
+                                mb: 1,
+                                border: `2px solid ${currentCategoryStyle.color}30`,
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            {currentCategoryStyle.icon}
+                        </Avatar>
+                    </Zoom>
+                    <Typography variant="h6" fontWeight={800} color={currentCategoryStyle.color}>
+                        {formData.category}
+                    </Typography>
+                </Box>
+
                 <Box>
                     <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ mb: 1.5, display: 'block', letterSpacing: 1 }}>
-                        CATEGORÍA
+                        CAMBIAR CATEGORÍA
                     </Typography>
                     <ToggleButtonGroup
                         value={formData.category}
@@ -94,12 +120,12 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                                 transition: 'all 0.2s ease',
                                 color: 'text.secondary',
                                 "&.Mui-selected": {
-                                    bgcolor: `${getCategoryConfig(formData.category).color}20`,
-                                    color: getCategoryConfig(formData.category).color,
-                                    borderColor: `${getCategoryConfig(formData.category).color} !important`,
+                                    bgcolor: `${currentCategoryStyle.color}20`,
+                                    color: currentCategoryStyle.color,
+                                    borderColor: `${currentCategoryStyle.color} !important`,
                                     fontWeight: 'bold',
                                     "&:hover": {
-                                        bgcolor: `${getCategoryConfig(formData.category).color}30`,
+                                        bgcolor: `${currentCategoryStyle.color}30`,
                                     }
                                 }
                             }
@@ -160,7 +186,6 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                 <Button
                     fullWidth
                     variant="contained"
-                    color="primary"
                     type="submit"
                     size="large"
                     disabled={loading}
@@ -170,7 +195,13 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
                         mt: 2,
                         fontWeight: 800,
                         borderRadius: 4,
-                        boxShadow: `0 8px 20px ${getCategoryConfig(formData.category).color}40`,
+                        bgcolor: currentCategoryStyle.color,
+                        '&:hover': {
+                            bgcolor: currentCategoryStyle.color,
+                            filter: 'brightness(0.9)'
+                        },
+                        boxShadow: `0 8px 20px ${currentCategoryStyle.color}40`,
+                        transition: 'all 0.3s ease'
                     }}
                 >
                     {loading

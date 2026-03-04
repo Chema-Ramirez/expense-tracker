@@ -1,19 +1,23 @@
-import { Paper, Typography, Box, LinearProgress, IconButton, Stack, Button, TextField, InputAdornment } from "@mui/material";
+import {
+    Paper, Typography, Box, LinearProgress, IconButton,
+    Stack, Button, TextField, InputAdornment, Avatar, MenuItem
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { useState, useEffect } from "react";
+import SaveIcon from '@mui/icons-material/Save';
+import CloseIcon from '@mui/icons-material/Close';
+import { getCategoryConfig, CATEGORIES } from "../utils/categoryHelpers";
+import { useState } from "react";
 
-const PiggyGoalCard = ({ id, name, saved = 0, target = 0, suggestedAmount = 0, onUpdate, onDelete }) => {
-    const progress = target > 0 ? Math.min((saved / target) * 100, 100) : 0;
-    const [isEditing, setIsEditing] = useState(false);
-    const [tempSuggestion, setTempSuggestion] = useState(suggestedAmount);
+const PiggyGoalCard = ({ id, name, category, saved = 0, target = 0, deadline, onUpdate, onDelete }) => {
+    const [isEditingFull, setIsEditingFull] = useState(false);
     const [addAmount, setAddAmount] = useState("");
+    const [editData, setEditData] = useState({ name, category, targetAmount: target, deadline: deadline || "" });
 
-    useEffect(() => {
-        setTempSuggestion(suggestedAmount);
-    }, [suggestedAmount]);
+    const config = getCategoryConfig(category);
+    const progress = target > 0 ? Math.min((saved / target) * 100, 100) : 0;
+
+    const formatNumber = (num) => Number(num).toLocaleString('de-DE');
 
     const handleQuickAdd = () => {
         const val = Number(addAmount);
@@ -23,159 +27,88 @@ const PiggyGoalCard = ({ id, name, saved = 0, target = 0, suggestedAmount = 0, o
         }
     };
 
-    const handleSaveSuggestion = () => {
-        const val = Number(tempSuggestion);
-        if (!isNaN(val)) {
-            onUpdate?.(id, { suggestedAmount: val });
-        }
-        setIsEditing(false);
-    };
+    if (isEditingFull) {
+        return (
+            <Paper sx={{ p: 3, borderRadius: 5, border: "2px solid", borderColor: 'primary.main' }}>
+                <Stack spacing={2}>
+                    <Typography variant="subtitle2" fontWeight={800}>Editar Objetivo</Typography>
+
+                    <TextField label="Nombre" size="small" fullWidth value={editData.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })} />
+
+                    <TextField select label="Categoría" size="small" fullWidth value={editData.category} onChange={(e) => setEditData({ ...editData, category: e.target.value })}>
+                        {CATEGORIES.map((cat) => (
+                            <MenuItem key={cat.id} value={cat.id}>
+                                <Stack direction="row" spacing={1} alignItems="center">
+                                    {cat.icon} <Typography variant="body2">{cat.label}</Typography>
+                                </Stack>
+                            </MenuItem>
+                        ))}
+                    </TextField>
+
+                    <TextField label="Meta Total" size="small" type="number" fullWidth value={editData.targetAmount} onChange={(e) => setEditData({ ...editData, targetAmount: e.target.value })} />
+
+                    <TextField label="Fecha" size="small" type="date" fullWidth value={editData.deadline} onChange={(e) => setEditData({ ...editData, deadline: e.target.value })} slotProps={{ inputLabel: { shrink: true } }} />
+
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            startIcon={<SaveIcon />}
+                            onClick={() => { onUpdate?.(id, editData); setIsEditingFull(false); }}
+                        >
+                            Actualizar
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            color="inherit"
+                            startIcon={<CloseIcon />}
+                            onClick={() => setIsEditingFull(false)}
+                        >
+                            Cancelar
+                        </Button>
+                    </Stack>
+                </Stack>
+            </Paper>
+        );
+    }
 
     return (
-        <Paper
-            elevation={0}
-            sx={{
-                p: 2.5,
-                mb: 2,
-                borderRadius: 4,
-                border: '1px solid',
-                borderColor: 'divider',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-                    borderColor: 'primary.light'
-                }
-            }}
-        >
-            {/* HEADER */}
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={1}>
-                <Box>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                        <Typography variant="subtitle1" fontWeight={800}>{name}</Typography>
-                        {progress === 100 && <CheckCircleIcon color="success" sx={{ fontSize: 18 }} />}
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                        {saved.toLocaleString()} € <span style={{ opacity: 0.5 }}>de</span> {target.toLocaleString()} €
-                    </Typography>
+        <Paper elevation={0} sx={{
+            p: 2.5, borderRadius: 5, border: "2px solid", borderColor: `${config.color}30`,
+            "&:hover": { borderColor: config.color, transform: 'translateY(-2px)', transition: '0.3s' }
+        }}>
+            <Stack direction="row" alignItems="center" spacing={2} mb={2}>
+                <Avatar sx={{ bgcolor: `${config.color}15`, color: config.color, borderRadius: 3 }}>{config.icon}</Avatar>
+                <Box sx={{ flex: 1 }}>
+                    <Typography variant="subtitle1" fontWeight={900}>{name}</Typography>
+                    <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase' }}>{config.label}</Typography>
                 </Box>
-                <IconButton
-                    size="small"
-                    onClick={() => onDelete?.(id)}
-                    sx={{ color: 'error.light', bgcolor: '#fff5f5', '&:hover': { bgcolor: '#ffebee' } }}
-                >
-                    <DeleteIcon fontSize="small" />
-                </IconButton>
+                <Stack direction="row">
+                    <IconButton size="small" onClick={() => setIsEditingFull(true)}><EditIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" onClick={() => window.confirm("¿Eliminar?") && onDelete?.(id)} sx={{ color: 'error.light' }}><DeleteIcon fontSize="small" /></IconButton>
+                </Stack>
             </Stack>
 
-            {/* BARRA DE PROGRESO */}
             <Box sx={{ my: 2 }}>
                 <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                    <Typography variant="caption" fontWeight={900} color={progress === 100 ? "success.main" : "primary"}>
-                        {progress.toFixed(0)}%
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                        {target - saved > 0 ? `Faltan ${(target - saved).toLocaleString()} €` : '¡Completado! 🎉'}
-                    </Typography>
+                    <Typography variant="caption" fontWeight={900} color={config.color}>{progress.toFixed(0)}%</Typography>
+                    <Typography variant="caption" fontWeight={600}>{formatNumber(saved)}€ / {formatNumber(target)}€</Typography>
                 </Stack>
-                <LinearProgress
-                    variant="determinate"
-                    value={progress}
-                    sx={{
-                        height: 8,
-                        borderRadius: 4,
-                        bgcolor: 'action.hover',
-                        '& .MuiLinearProgress-bar': {
-                            borderRadius: 4,
-                            backgroundColor: progress === 100 ? '#4caf50' : ''
-                        }
-                    }}
-                />
+                <LinearProgress variant="determinate" value={progress} sx={{ height: 8, borderRadius: 5, bgcolor: `${config.color}15`, "& .MuiLinearProgress-bar": { bgcolor: config.color } }} />
             </Box>
 
-            {/* INPUT AHORRO RÁPIDO */}
-            <Stack direction="row" spacing={1} sx={{ mb: 2, mt: 3 }}>
-                <TextField
-                    size="small"
-                    fullWidth
-                    placeholder="Sumar dinero..."
-                    type="number"
-                    value={addAmount}
-                    onChange={(e) => setAddAmount(e.target.value)}
-                    InputProps={{
-                        startAdornment: <InputAdornment position="start">€</InputAdornment>,
-                        sx: { borderRadius: 3, fontSize: '0.85rem' }
-                    }}
-                />
-                <Button
-                    variant="contained"
-                    disableElevation
-                    onClick={handleQuickAdd}
-                    disabled={!addAmount || addAmount <= 0}
-                    startIcon={<AddCircleIcon />}
-                    sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 700, px: 3, bgcolor: '#2e7d32' }}
-                >
+            <Stack direction="row" spacing={1} mt={3}>
+                <TextField size="small" fullWidth placeholder="Sumar..." type="number" value={addAmount} onChange={(e) => setAddAmount(e.target.value)}
+                    InputProps={{ startAdornment: <InputAdornment position="start">€</InputAdornment> }} />
+                <Button variant="contained" onClick={handleQuickAdd}
+                    sx={{
+                        bgcolor: config.color, color: '#fff', fontWeight: 800, textTransform: 'none', px: 2,
+                        '&:hover': { bgcolor: config.color, filter: 'brightness(0.9)' }
+                    }}>
                     Ahorrar
                 </Button>
             </Stack>
-
-            {/* FOOTER */}
-            <Box
-                sx={{
-                    p: 1.5,
-                    borderRadius: 3,
-                    bgcolor: 'action.hover',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    minHeight: '48px'
-                }}
-            >
-                {isEditing ? (
-                    <Stack direction="row" spacing={1} width="100%" alignItems="center">
-                        <TextField
-                            fullWidth
-                            size="small"
-                            type="number"
-                            variant="standard"
-                            value={tempSuggestion}
-                            onChange={(e) => setTempSuggestion(e.target.value)}
-                            InputProps={{
-                                startAdornment: <InputAdornment position="start">€</InputAdornment>,
-                                disableUnderline: true,
-                                sx: { fontWeight: 700 }
-                            }}
-                            autoFocus
-                        />
-                        <Button
-                            variant="contained"
-                            size="small"
-                            onClick={handleSaveSuggestion}
-                            sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700 }}
-                        >
-                            Guardar
-                        </Button>
-                    </Stack>
-                ) : (
-                    <>
-                        <Box>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', fontSize: '0.65rem', display: 'block' }}>
-                                Ahorro mensual sugerido
-                            </Typography>
-                            <Typography variant="body2" fontWeight={800} color="primary.main">
-                                {suggestedAmount.toLocaleString()} € / mes
-                            </Typography>
-                        </Box>
-                        <IconButton
-                            size="small"
-                            onClick={() => setIsEditing(true)}
-                            sx={{ color: 'primary.main', bgcolor: 'rgba(31,191,159,0.1)' }}
-                        >
-                            <EditIcon sx={{ fontSize: 16 }} />
-                        </IconButton>
-                    </>
-                )}
-            </Box>
         </Paper>
     );
 };

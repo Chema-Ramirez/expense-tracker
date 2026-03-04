@@ -1,41 +1,59 @@
-import { Grid, Paper, Typography, Stack, Box } from '@mui/material';
+import { Paper, Stack, Typography, Box, Divider } from "@mui/material";
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import SavingsIcon from '@mui/icons-material/Savings';
 
-const MonthlySummary = ({ expenses = [] }) => {
-    const totalSpent = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
-
-    const estimatedIncome = 2500;
+const MonthlySummary = ({ expenses }) => {
+    const totalSpent = expenses.reduce((acc, curr) => acc + curr.amount, 0);
+    const budget = 2000;
+    const remaining = budget - totalSpent;
 
     return (
-        <Grid container spacing={2}>
-            <Grid item xs={6}>
-                <Paper elevation={0} sx={{ p: 2, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
-                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
-                        <TrendingDownIcon sx={{ color: 'error.main', fontSize: 20 }} />
-                        <Typography variant="caption" fontWeight={800} color="text.secondary">GASTADO</Typography>
+        <Paper
+            elevation={0}
+            sx={{
+                p: 1.5,
+                borderRadius: 4,
+                border: "1px solid",
+                borderColor: "divider",
+                bgcolor: 'background.paper'
+            }}
+        >
+            <Stack
+                direction="row"
+                divider={<Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />}
+                spacing={1}
+            >
+                {/* GASTADO */}
+                <Box sx={{ flex: 1 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
+                        <TrendingDownIcon sx={{ color: 'error.main', fontSize: 18 }} />
+                        <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1, fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                                Gastado
+                            </Typography>
+                            <Typography variant="subtitle1" fontWeight={800} color="error.main" sx={{ lineHeight: 1.2 }}>
+                                {totalSpent.toLocaleString()}€
+                            </Typography>
+                        </Box>
                     </Stack>
-                    <Typography variant="h5" fontWeight={900}>{totalSpent.toLocaleString()}€</Typography>
-                </Paper>
-            </Grid>
+                </Box>
 
-            <Grid item xs={6}>
-                <Paper elevation={0} sx={{
-                    p: 2,
-                    borderRadius: 4,
-                    bgcolor: 'primary.main',
-                    color: 'primary.contrastText'
-                }}>
-                    <Stack direction="row" spacing={1} alignItems="center" mb={1}>
-                        <AccountBalanceIcon sx={{ fontSize: 20, opacity: 0.8 }} />
-                        <Typography variant="caption" fontWeight={800} sx={{ opacity: 0.8 }}>BALANCE</Typography>
+                {/* Acumulado */}
+                <Box sx={{ flex: 1 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
+                        <SavingsIcon sx={{ color: 'success.main', fontSize: 18 }} />
+                        <Box>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1, fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                                Acumulado
+                            </Typography>
+                            <Typography variant="subtitle1" fontWeight={800} color="success.main" sx={{ lineHeight: 1.2 }}>
+                                {remaining.toLocaleString()}€
+                            </Typography>
+                        </Box>
                     </Stack>
-                    <Typography variant="h5" fontWeight={900}>
-                        {(estimatedIncome - totalSpent).toLocaleString()}€
-                    </Typography>
-                </Paper>
-            </Grid>
-        </Grid>
+                </Box>
+            </Stack>
+        </Paper>
     );
 };
 

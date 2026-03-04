@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Typography, Container } from "@mui/material";
 import { AuthContext } from "../context/AuthContext";
 
 const DashboardLayout = () => {
@@ -21,27 +21,38 @@ const DashboardLayout = () => {
     };
 
     return (
-        <Box sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column", pb: "80px", bgcolor: "background.default" }}>
-            <Box sx={{ flex: 1, p: 2 }}>
+        <Box sx={{
+            minHeight: "100dvh",
+            display: "flex",
+            flexDirection: "column",
+            bgcolor: "background.default",
+            pb: { xs: "90px", sm: "100px" }
+        }}>
+            {/* CONTENEDOR PRINCIPAL */}
+            <Container maxWidth="md" sx={{ flex: 1, p: 2, pt: 3 }}>
                 <Outlet />
-            </Box>
+            </Container>
 
+            {/* NAVEGACIÓN INFERIOR */}
             <Box
                 component="nav"
                 sx={{
                     position: "fixed",
-                    bottom: 0,
-                    left: 0,
-                    width: "100%",
+                    bottom: { xs: 15, sm: 20 },
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    width: { xs: "92%", sm: "400px" },
                     height: 70,
-                    borderTop: "1px solid",
-                    borderColor: "divider",
-                    bgcolor: "background.paper",
+                    borderRadius: 5,
+                    bgcolor: "rgba(255, 255, 255, 0.85)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.3)",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
                     display: "flex",
-                    justifyContent: "space-between",
-                    px: 1,
+                    justifyContent: "space-around",
                     alignItems: "center",
-                    zIndex: 1000,
+                    px: 1,
+                    zIndex: 1100,
                 }}
             >
                 {navItems.map((item, idx) => {
@@ -54,9 +65,11 @@ const DashboardLayout = () => {
                             sx={{
                                 flexDirection: "column",
                                 color: isActive ? "primary.main" : "text.secondary",
-                                width: "20%",
-                                borderRadius: 0,
-                                gap: 0.5
+                                width: "auto",
+                                minWidth: 60,
+                                gap: 0.5,
+                                position: "relative",
+                                transition: "0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                             }}
                         >
                             <Box
@@ -66,31 +79,55 @@ const DashboardLayout = () => {
                                 sx={{
                                     width: 24,
                                     height: 24,
-                                    transition: "transform 0.2s",
-                                    transform: isActive ? "scale(1.1)" : "scale(1)",
-                                    filter: isActive ? "none" : "grayscale(100%) opacity(0.5)"
+                                    transition: "all 0.3s ease",
+                                    transform: isActive ? "translateY(-4px) scale(1.15)" : "scale(1)",
+                                    filter: isActive ? "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" : "grayscale(80%) opacity(0.6)"
                                 }}
                             />
+
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    fontSize: "0.65rem",
-                                    fontWeight: 600,
-                                    color: isActive ? "primary.main" : "text.secondary"
+                                    fontSize: "0.6rem",
+                                    fontWeight: 800,
+                                    textTransform: "uppercase",
+                                    letterSpacing: 0.5,
+                                    opacity: isActive ? 1 : 0.6,
+                                    transition: "0.3s"
                                 }}
                             >
                                 {item.label}
                             </Typography>
+
+                            {isActive && (
+                                <Box sx={{
+                                    position: "absolute",
+                                    bottom: -6,
+                                    width: 5,
+                                    height: 5,
+                                    borderRadius: "50%",
+                                    bgcolor: "primary.main",
+                                    boxShadow: "0 0 8px rgba(0,0,0,0.2)"
+                                }} />
+                            )}
                         </IconButton>
                     );
                 })}
 
+                {/* BOTÓN SALIR */}
                 <IconButton
                     onClick={handleLogout}
-                    sx={{ flexDirection: "column", color: "#f44336", width: "20%", gap: 0.5 }}
+                    sx={{
+                        flexDirection: "column",
+                        color: "error.light",
+                        minWidth: 60,
+                        gap: 0.5,
+                        opacity: 0.7,
+                        '&:hover': { opacity: 1 }
+                    }}
                 >
-                    <Box component="img" src="/icons/cerrar-sesion.png" sx={{ width: 24, height: 24, opacity: 0.7 }} />
-                    <Typography variant="caption" sx={{ fontSize: "0.65rem", fontWeight: 600 }}>Salir</Typography>
+                    <Box component="img" src="/icons/cerrar-sesion.png" sx={{ width: 22, height: 22, filter: "grayscale(100%)" }} />
+                    <Typography variant="caption" sx={{ fontSize: "0.6rem", fontWeight: 800 }}>Salir</Typography>
                 </IconButton>
             </Box>
         </Box>

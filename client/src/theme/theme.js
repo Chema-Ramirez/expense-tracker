@@ -8,6 +8,10 @@ const getDesignTokens = (mode) => ({
       light: "#4CE0C3",
       dark: "#148F76",
       contrastText: "#ffffff",
+      background: {
+        default: mode === "light" ? "#F8FAFC" : "#0F172A",
+        paper: mode === "light" ? "#FFFFFF" : "#1E293B",
+      },
     },
     secondary: {
       main: "#d8c72c",
@@ -41,6 +45,11 @@ const getDesignTokens = (mode) => ({
       },
     },
     MuiPaper: {
+      elevation1: {
+        boxShadow: mode === "light"
+          ? "0px 2px 4px rgba(0,0,0,0.02), 0px 10px 20px -3px rgba(0,0,0,0.05)"
+          : "0px 10px 20px -5px rgba(0,0,0,0.5)",
+      },
       styleOverrides: {
         root: {
           backgroundImage: "none",

@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { TextField, Button, Stack, InputAdornment } from "@mui/material";
+import { TextField, Button, Stack, InputAdornment, MenuItem } from "@mui/material";
+import { CATEGORIES } from "../utils/categoryHelpers";
 
 const PiggyGoalForm = ({ onSubmit, onCancel }) => {
     const [formData, setFormData] = useState({
         name: "",
+        category: "otros",
         targetAmount: "",
         suggestedAmount: ""
     });
@@ -17,6 +19,7 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
 
         onSubmit({
             name: formData.name.trim(),
+            category: formData.category,
             targetAmount: Number(formData.targetAmount),
             suggestedAmount: Number(formData.suggestedAmount) || 0,
             currentAmount: 0
@@ -36,6 +39,27 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                     value={formData.name}
                     onChange={handleChange}
                 />
+
+                {/* SELECTOR DE CATEGORÍA */}
+                <TextField
+                    select
+                    label="Categoría"
+                    name="category"
+                    fullWidth
+                    required
+                    value={formData.category}
+                    onChange={handleChange}
+                    helperText="Esto definirá el color y el icono de tu meta"
+                >
+                    {CATEGORIES.map((option) => (
+                        <MenuItem key={option.id} value={option.id}>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                                <span>{option.icon}</span>
+                                <span>{option.label}</span>
+                            </Stack>
+                        </MenuItem>
+                    ))}
+                </TextField>
 
                 <TextField
                     label="Meta Total"
@@ -65,28 +89,43 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                     }}
                 />
 
-                <Stack direction="row" spacing={2} sx={{ pt: 1 }}>
-                    <Button
-                        fullWidth
-                        variant="text"
-                        color="inherit"
-                        onClick={onCancel}
-                        sx={{ fontWeight: 600 }}
-                    >
-                        Cancelar
-                    </Button>
+                <Stack direction="row" spacing={2} sx={{ pt: 2 }}>
                     <Button
                         fullWidth
                         variant="contained"
-                        color="primary"
+                        onClick={onCancel}
+                        sx={{
+                            fontWeight: 700,
+                            borderRadius: 3,
+                            textTransform: 'none',
+                            bgcolor: 'error.main',
+                            boxShadow: '0 4px 12px rgba(221, 21, 21, 0.2)',
+                            '&:hover': {
+                                bgcolor: 'error.dark',
+                                boxShadow: '0 6px 15px rgba(156, 15, 15, 0.3)',
+                            }
+                        }}
+                    >
+                        Cancelar
+                    </Button>
+
+                    <Button
+                        fullWidth
+                        variant="contained"
                         type="submit"
                         sx={{
                             fontWeight: 700,
                             borderRadius: 3,
-                            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.2)'
+                            textTransform: 'none',
+                            bgcolor: 'primary.main',
+                            boxShadow: '0 4px 12px rgba(31, 191, 159, 0.25)',
+                            '&:hover': {
+                                bgcolor: 'primary.dark',
+                                boxShadow: '0 6px 15px rgba(31, 191, 159, 0.35)',
+                            }
                         }}
                     >
-                        Guardar Meta
+                        Guardar
                     </Button>
                 </Stack>
             </Stack>
