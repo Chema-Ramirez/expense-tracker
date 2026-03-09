@@ -1,6 +1,6 @@
 import {
     Container, Typography, Box, Paper, Fab, Zoom, Avatar, Stack,
-    useTheme, Button, Skeleton, Divider, Snackbar, Alert
+    useTheme, Button, Skeleton, Snackbar, Alert
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -8,7 +8,6 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import HistoryIcon from '@mui/icons-material/History';
 import { useState } from "react";
-import CloseIcon from '@mui/icons-material/Close';
 import { getCategoryConfig } from "../utils/categoryHelpers";
 
 // COMPONENTES & HOOKS
@@ -21,38 +20,49 @@ import { useExpenses } from "../hooks/useExpenses";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
-
 const Dashboard = () => {
     const theme = useTheme();
     const navigate = useNavigate();
 
+    // HOOKS
     const { user, loading: authLoading } = useAuth();
-    const { expenses, addExpense, loading: expensesLoading } = useExpenses();
+    const {
+        expenses,
+        addExpense,
+        updateExpense,
+        deleteExpense,
+        loading: expensesLoading
+    } = useExpenses();
 
+    // ESTADOS
     const [selectedCategories, setSelectedCategories] = useState([]);
-
     const [openModal, setOpenModal] = useState(false);
+    const [editingExpense, setEditingExpense] = useState(null);
+    const [expenseToDelete, setExpenseToDelete] = useState(null);
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: "",
         severity: "success"
     });
 
+    // HANDLERS
     const handleCloseSnackbar = () => {
         setSnackbar({ ...snackbar, open: false });
     };
 
+
+    // CREATE
     const handleAddExpense = async (data) => {
         try {
             await addExpense(data);
             setOpenModal(false);
             setSnackbar({
                 open: true,
-                message: "¡Movimiento guardado! 🐷",
+                message: "¡Movimiento guardado!",
                 severity: "success"
             });
         } catch (err) {
-            console.error("Detalle técnico:", err);
+            console.error("Error al guardar:", err);
             setSnackbar({
                 open: true,
                 message: "Error al guardar el movimiento",
@@ -61,6 +71,47 @@ const Dashboard = () => {
         }
     };
 
+    //UPDATE
+    const handleUpdateExpense = async (data) => {
+        const id = editingExpense?._id || editingExpense?.id;
+        try {
+            await updateExpense(id, data);
+
+            setEditingExpense(null);
+            setSnackbar({
+                open: true,
+                message: "¡Movimiento actualizado!",
+                severity: "success"
+            });
+        } catch (err) {
+            setSnackbar({
+                open: true,
+                message: err.message || "Error al actualizar el movimiento",
+                severity: "error"
+            });
+        }
+    };
+
+
+    //DELETE
+    const handleConfirmDelete = (id) => {
+        setExpenseToDelete(id);
+    };
+
+    const handleDeleteExpense = async () => {
+        if (!expenseToDelete) return;
+
+        try {
+            await deleteExpense(expenseToDelete);
+            setSnackbar({ open: true, message: "¡Movimiento eliminado!", severity: "success" });
+            setExpenseToDelete(null);
+        } catch (err) {
+            console.error("Error al borrar:", err);
+            setSnackbar({ open: true, message: "Error al eliminar", severity: "error" });
+        }
+    };
+
+    // CATEGORIAS
     const handleToggleCategory = (catName) => {
         setSelectedCategories(prev =>
             prev.includes(catName)
@@ -69,23 +120,23 @@ const Dashboard = () => {
         );
     };
 
+    // LÓGICA DE FILTRADO
     const filteredExpenses = selectedCategories.length > 0
         ? expenses.filter(e => selectedCategories.includes(getCategoryConfig(e.category).label))
         : expenses;
 
+    // RENDERS AUXILIARES
     const renderHeader = () => {
         if (authLoading) return <Skeleton variant="text" width={200} height={80} />;
         return (
             <Stack direction="row" justifyContent="space-between" alignItems="center">
                 <Box>
-                    <Typography variant="body2" color="text.secondary" fontWeight={700} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
-                        Inicio
-                    </Typography>
                     <Typography variant="h4" fontWeight={900} sx={{ letterSpacing: -1.5, mt: -0.5 }}>
                         Hola, {user?.name?.split(" ")[0] || "Ahorrador"} 👋
                     </Typography>
                 </Box>
                 <Avatar
+                    src={user?.avatarUrl}
                     sx={{
                         width: 52, height: 52,
                         bgcolor: "primary.main",
@@ -102,7 +153,7 @@ const Dashboard = () => {
     };
 
     return (
-        <Container maxWidth="sm" sx={{ pb: 15 }}>
+        <Container maxWidth="sm" sx={{ pb: 2 }}>
             <Box py={3}>{renderHeader()}</Box>
 
             <Box mb={4}>
@@ -113,17 +164,13 @@ const Dashboard = () => {
             <Paper
                 elevation={0}
                 sx={{
-                    p: 3, mb: 4, borderRadius: 5, border: "1px solid", borderColor: "divider",
+                    p: 4, pb: 0.5, mb: 4, borderRadius: 5, border: "1px solid", borderColor: "divider",
                     background: theme.palette.mode === 'light'
                         ? "linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%)"
                         : "rgba(255,255,255,0.03)",
-                    overflow: 'hidden',
-                    position: 'relative',
-                    '&:focus-within': { outline: 'none' },
-                    '& .recharts-surface:focus': { outline: 'none' }
+                    overflow: 'hidden'
                 }}
             >
-
                 <Box sx={{ height: 40, mb: 2 }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                         <Stack direction="row" alignItems="center" spacing={1}>
@@ -158,42 +205,6 @@ const Dashboard = () => {
                         </Typography>
                     )}
                 </Box>
-
-                <Box sx={{
-                    minHeight: 45,
-                    mt: 1,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 1,
-                    maxHeight: 90,
-                    overflowY: 'auto',
-                    '&::-webkit-scrollbar': { display: 'none' }
-                }}>
-                    {selectedCategories.map(cat => (
-                        <Zoom key={cat} in={true}>
-                            <Box
-                                onClick={() => handleToggleCategory(cat)}
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 0.5,
-                                    bgcolor: 'primary.main',
-                                    color: 'white',
-                                    px: 1.5,
-                                    py: 0.5,
-                                    borderRadius: 2,
-                                    cursor: 'pointer',
-                                    fontSize: '0.7rem',
-                                    fontWeight: 800,
-                                    transition: '0.2s',
-                                    '&:hover': { transform: 'scale(0.95)', opacity: 0.9 }
-                                }}
-                            >
-                                {cat} <CloseIcon sx={{ fontSize: 14 }} />
-                            </Box>
-                        </Zoom>
-                    ))}
-                </Box>
             </Paper>
 
             {/* ÚLTIMOS MOVIMIENTOS */}
@@ -202,11 +213,7 @@ const Dashboard = () => {
                     <Stack direction="row" spacing={1} alignItems="center">
                         <HistoryIcon sx={{ color: 'primary.main', fontSize: 20 }} />
                         <Typography variant="subtitle1" fontWeight={800}>
-                            {selectedCategories.length === 1
-                                ? `Gastos en ${selectedCategories[0]}`
-                                : selectedCategories.length > 1
-                                    ? 'Filtro múltiple activo'
-                                    : 'Actividad Reciente'}
+                            {selectedCategories.length > 0 ? 'Filtrado' : 'Actividad Reciente'}
                         </Typography>
                     </Stack>
                     <Button
@@ -225,42 +232,61 @@ const Dashboard = () => {
                             .sort((a, b) => new Date(b.date) - new Date(a.date))
                             .slice(0, 4)
                             .map((expense) => (
-                                <ExpenseItem key={expense._id || expense.id} expense={expense} showActions={false} />
+                                <ExpenseItem
+                                    key={expense._id || expense.id}
+                                    expense={expense}
+                                    showActions={true}
+                                    onDelete={() => handleConfirmDelete(expense._id || expense.id)}
+                                    onEdit={(exp) => setEditingExpense(exp)}
+                                />
                             ))
                     ) : (
                         <Typography variant="body2" color="text.secondary" textAlign="center" py={3}>
-                            No hay movimientos que coincidan
+                            No hay movimientos registrados
                         </Typography>
                     )}
                 </Stack>
             </Box>
 
-            {/* FAB BOTÓN */}
+            {/* BOTÓN FLOTANTE */}
             <Zoom in={!expensesLoading}>
                 <Fab
                     color="primary"
-                    aria-label="add"
                     onClick={() => setOpenModal(true)}
                     sx={{
                         position: 'fixed',
                         bottom: { xs: 100, sm: 40 },
                         right: { xs: 25, sm: 40 },
                         zIndex: 1000,
-                        width: 65,
-                        height: 65,
-                        boxShadow: `0 12px 24px ${theme.palette.primary.main}50`,
-                        '&:hover': { transform: 'scale(1.1) rotate(90deg)', transition: '0.3s' }
+                        width: 65, height: 65,
+                        boxShadow: `0 12px 24px ${theme.palette.primary.main}50`
                     }}
                 >
                     <AddIcon sx={{ fontSize: 32 }} />
                 </Fab>
             </Zoom>
 
-            {/* MODAL & NOTIFICACIONES */}
+            {/* AÑADIR */}
             <ModalWrapper open={openModal} onClose={() => setOpenModal(false)} title="Añadir Movimiento">
                 <ExpenseForm onSubmit={handleAddExpense} onCancel={() => setOpenModal(false)} />
             </ModalWrapper>
 
+            {/* EDITAR */}
+            <ModalWrapper
+                open={Boolean(editingExpense)}
+                onClose={() => setEditingExpense(null)}
+                title="Editar Movimiento"
+            >
+                {editingExpense && (
+                    <ExpenseForm
+                        initialData={editingExpense}
+                        onSubmit={handleUpdateExpense}
+                        onCancel={() => setEditingExpense(null)}
+                    />
+                )}
+            </ModalWrapper>
+
+            {/* NOTIFICACIONES */}
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={4000}
@@ -276,6 +302,47 @@ const Dashboard = () => {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
+
+
+
+            {/* MODAL DE CONFIRMACIÓN DE BORRADO */}
+            <ModalWrapper
+                open={Boolean(expenseToDelete)}
+                onClose={() => setExpenseToDelete(null)}
+                title="¿Eliminar Gasto?"
+            >
+                <Box sx={{ p: 1 }}>
+                    <Typography variant="body1" color="text.secondary" mb={4}>
+                        Esta acción no se puede deshacer. El Gasto desaparecerá de tu historial permanentemente.
+                    </Typography>
+
+                    <Stack direction="row" spacing={2}>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            onClick={() => setExpenseToDelete(null)}
+                            sx={{ borderRadius: 3, py: 1.5, fontWeight: 800, textTransform: 'none' }}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            color="error"
+                            onClick={handleDeleteExpense}
+                            sx={{
+                                borderRadius: 3,
+                                py: 1.5,
+                                fontWeight: 800,
+                                textTransform: 'none',
+                                boxShadow: `0 8px 20px ${theme.palette.error.main}40`
+                            }}
+                        >
+                            Eliminar
+                        </Button>
+                    </Stack>
+                </Box>
+            </ModalWrapper>
         </Container>
     );
 };

@@ -11,6 +11,7 @@ import { useState } from "react";
 
 const PiggyGoalCard = ({ id, name, category, saved = 0, target = 0, deadline, onUpdate, onDelete }) => {
     const [isEditingFull, setIsEditingFull] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [addAmount, setAddAmount] = useState("");
     const [editData, setEditData] = useState({ name, category, targetAmount: target, deadline: deadline || "" });
 
@@ -26,6 +27,37 @@ const PiggyGoalCard = ({ id, name, category, saved = 0, target = 0, deadline, on
             setAddAmount("");
         }
     };
+
+    if (showDeleteConfirm) {
+        return (
+            <Paper sx={{ p: 3, borderRadius: 5, border: "2px solid", borderColor: 'error.main', textAlign: 'center' }}>
+                <Typography variant="subtitle2" fontWeight={800} mb={1}>¿Eliminar "{name}"?</Typography>
+                <Typography variant="caption" color="text.secondary" display="block" mb={2}>
+                    Se perderá el Objetivo actual.
+                </Typography>
+                <Stack direction="row" spacing={1}>
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        color="error"
+                        onClick={() => onDelete?.(id)}
+                        sx={{ borderRadius: 3, fontWeight: 800, textTransform: 'none' }}
+                    >
+                        Eliminar
+                    </Button>
+                    <Button
+                        fullWidth
+                        variant="outlined"
+                        color="inherit"
+                        onClick={() => setShowDeleteConfirm(false)}
+                        sx={{ borderRadius: 3, fontWeight: 800, textTransform: 'none' }}
+                    >
+                        Volver
+                    </Button>
+                </Stack>
+            </Paper>
+        );
+    }
 
     if (isEditingFull) {
         return (
@@ -86,7 +118,9 @@ const PiggyGoalCard = ({ id, name, category, saved = 0, target = 0, deadline, on
                 </Box>
                 <Stack direction="row">
                     <IconButton size="small" onClick={() => setIsEditingFull(true)}><EditIcon fontSize="small" /></IconButton>
-                    <IconButton size="small" onClick={() => window.confirm("¿Eliminar?") && onDelete?.(id)} sx={{ color: 'error.light' }}><DeleteIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" onClick={() => setShowDeleteConfirm(true)} sx={{ color: 'error.light' }}>
+                        <DeleteIcon fontSize="small" />
+                    </IconButton>
                 </Stack>
             </Stack>
 

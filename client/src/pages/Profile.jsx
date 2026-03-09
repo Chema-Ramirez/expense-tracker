@@ -1,7 +1,7 @@
 import {
     Container, Typography, Box, Paper, Stack,
     Avatar, Button, Switch, ListItem, ListItemText,
-    ListItemIcon, IconButton, Badge, TextField, Grid, LinearProgress
+    ListItemIcon, IconButton, Badge, TextField, LinearProgress
 } from "@mui/material";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -9,6 +9,7 @@ import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import EditIcon from "@mui/icons-material/Edit";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SecurityIcon from '@mui/icons-material/Security';
+import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from "../hooks/useAuth";
 import { useContext, useState, useRef, useMemo } from "react";
 import { ThemeContext } from "../context/ThemeContext";
@@ -66,8 +67,18 @@ const Profile = () => {
     }, [expenses]);
 
     return (
-        <Container maxWidth="sm" sx={{ py: 4, pb: 2 }}>
-            <Typography variant="h4" fontWeight={900} mb={4} sx={{ letterSpacing: -1 }}>Mi Perfil</Typography>
+        <Container maxWidth="sm" sx={{ py: 2, pb: 2 }}>
+            <Box mb={3}>
+                <Stack direction="row" alignItems="center" spacing={1.5} mb={1}>
+                    <PersonIcon color="primary" sx={{ fontSize: 32 }} />
+                    <Typography variant="h4" fontWeight={900} sx={{ letterSpacing: -1.5 }}>
+                        Mi Perfil
+                    </Typography>
+                </Stack>
+                <Typography variant="body2" color="text.secondary" fontWeight={500}>
+                    Edita tu información personal y revisa tus estadísticas de gastos
+                </Typography>
+            </Box>
 
             {/* HEADER */}
             <Paper elevation={0} sx={{ p: 4, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 4 }}>
@@ -97,7 +108,7 @@ const Profile = () => {
             </Paper>
 
             {/* MAYORES GASTOS */}
-            <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Mayores Gastos 💸</Typography>
+            <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Mayores Gastos </Typography>
             <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 4 }}>
                 {topExpenses.length > 0 ? (
                     <Stack spacing={2}>
@@ -111,7 +122,6 @@ const Profile = () => {
                                         </Avatar>
                                         <Box>
                                             <Typography variant="body2" fontWeight={800}>{exp.description || config.label}</Typography>
-                                            <Typography variant="caption" color="text.secondary">{exp.date}</Typography>
                                         </Box>
                                     </Stack>
                                     <Typography variant="body2" fontWeight={900} color="error.main">

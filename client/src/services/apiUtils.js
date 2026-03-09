@@ -10,9 +10,10 @@ export const handleError = (err, defaultMessage) => {
 
     if (err.response) {
         if (err.response.status === 401) {
-            return "Sesión expirada";
+            throw new Error("Sesión expirada o no autorizado");
         }
         throw new Error(err.response.data?.message || defaultMessage);
     }
+
     throw new Error(err.message || "Error de conexión con el servidor");
 };

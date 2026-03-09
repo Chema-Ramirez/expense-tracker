@@ -20,27 +20,35 @@ export const useExpenses = () => {
     };
 
     const updateExpense = async (id, expenseData) => {
+        if (!id) {
+            console.error("Error: ID no proporcionado para actualizar");
+            throw new Error("ID requerido");
+        }
+
         try {
+            await apiUpdateExpense(id, expenseData);
             setExpenses(prev =>
                 prev.map(exp => (exp._id === id || exp.id === id ? { ...exp, ...expenseData } : exp))
             );
-
-            await apiUpdateExpense(id, expenseData);
-            await refreshExpenses();
         } catch (error) {
-            await refreshExpenses();
             console.error("Error al actualizar:", error);
+            await refreshExpenses();
             throw error;
         }
     };
 
-    const removeExpense = async (id) => {
+    const deleteExpense = async (id) => {
+        if (!id) {
+            console.error("Error: ID no proporcionado para eliminar");
+            throw new Error("ID requerido");
+        }
+
         try {
-            setExpenses(prev => prev.filter(exp => (exp._id !== id && exp.id !== id)));
             await apiDeleteExpense(id);
+            setExpenses(prev => prev.filter(exp => exp._id !== id && exp.id !== id));
         } catch (error) {
-            await refreshExpenses();
             console.error("Error al eliminar:", error);
+            await refreshExpenses();
             throw error;
         }
     };
@@ -50,7 +58,7 @@ export const useExpenses = () => {
         loading,
         addExpense,
         updateExpense,
-        deleteExpense: removeExpense,
+        deleteExpense,
         refreshExpenses
     };
 };

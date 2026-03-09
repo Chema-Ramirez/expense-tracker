@@ -73,7 +73,7 @@ const Layout = () => {
                         </Typography>
                     </Box>
 
-                    {/* BOTÓN MODO NOCHE REFINADO */}
+                    {/* BOTÓN MODO NOCHE */}
                     <IconButton
                         onClick={toggleMode}
                         sx={{

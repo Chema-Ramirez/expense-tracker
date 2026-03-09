@@ -24,7 +24,7 @@ const PiggyBank = () => {
     };
 
     return (
-        <Container maxWidth="sm" sx={{ py: 2, pb: 12 }}>
+        <Container maxWidth="sm" sx={{ py: 2, pb: 2 }}>
             {/* HEADER */}
             <Box mb={4}>
                 <Stack direction="row" alignItems="center" spacing={1.5} mb={1}>
@@ -34,7 +34,7 @@ const PiggyBank = () => {
                     </Typography>
                 </Stack>
                 <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                    Gestiona tus objetivos de ahorro y visualiza tu progreso financiero.
+                    Agrega nuevos Objetivos y ahorra para alcanzar todas tus metas.
                 </Typography>
             </Box>
 

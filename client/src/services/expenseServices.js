@@ -33,7 +33,11 @@ export const createExpense = async (expenseData) => {
 // UPDATE 
 export const updateExpense = async (id, updatedData) => {
     try {
-        const res = await api.put(`/expenses/${id}`, updatedData);
+        const payload = {
+            ...updatedData,
+            amount: updatedData.amount ? Number(updatedData.amount) : undefined
+        };
+        const res = await api.put(`/expenses/${id}`, payload);
         return res.data.expense || res.data;
     } catch (err) {
         handleError(err, "No se pudo actualizar el gasto");
@@ -48,6 +52,6 @@ export const deleteExpense = async (id) => {
         return true;
     } catch (err) {
         handleError(err, "No se pudo eliminar el gasto");
-        return false;
+        throw err;
     }
 };
