@@ -154,7 +154,7 @@ const Dashboard = () => {
 
     return (
         <Container maxWidth="sm" sx={{ pb: 2 }}>
-            <Box py={3}>{renderHeader()}</Box>
+            <Box py={5}>{renderHeader()}</Box>
 
             <Box mb={4}>
                 <MonthlySummary expenses={expenses} />
@@ -164,14 +164,14 @@ const Dashboard = () => {
             <Paper
                 elevation={0}
                 sx={{
-                    p: 4, pb: 0.5, mb: 4, borderRadius: 5, border: "1px solid", borderColor: "divider",
+                    p: 4, pb: 6, mb: 4, borderRadius: 5, border: "1px solid", borderColor: "divider",
                     background: theme.palette.mode === 'light'
                         ? "linear-gradient(180deg, #FFFFFF 0%, #F9FAFB 100%)"
                         : "rgba(255,255,255,0.03)",
                     overflow: 'hidden'
                 }}
             >
-                <Box sx={{ height: 40, mb: 2 }}>
+                <Box sx={{ height: 40, mb: 4 }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <TrendingUpIcon sx={{ color: 'primary.main' }} />
@@ -207,7 +207,7 @@ const Dashboard = () => {
                 </Box>
             </Paper>
 
-            {/* ÚLTIMOS MOVIMIENTOS */}
+            {/* ACTIVIDAD RECIENTE */}
             <Box mb={4}>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2} px={1}>
                     <Stack direction="row" spacing={1} alignItems="center">

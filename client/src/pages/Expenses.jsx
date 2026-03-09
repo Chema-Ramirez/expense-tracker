@@ -24,7 +24,7 @@ const Expenses = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedExpense, setSelectedExpense] = useState(null);
     const [expenseToDelete, setExpenseToDelete] = useState(null);
-    const [filter, setFilter] = useState({ category: "", month: "" });
+    const [filter, setFilter] = useState({ category: [], month: "" });
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
     // FILTRADO
@@ -32,9 +32,14 @@ const Expenses = () => {
         return expenses
             .filter(exp => {
                 const expCat = exp.category?.toLowerCase().trim() || "";
-                const filCat = filter.category?.toLowerCase().trim() || "";
-                const matchesCategory = !filter.category || expCat === filCat;
-                const expMonth = new Date(exp.date).getMonth().toString();
+
+                const matchesCategory =
+                    !filter.category ||
+                    filter.category.length === 0 ||
+                    filter.category.includes(expCat);
+
+                const expDate = new Date(exp.date);
+                const expMonth = expDate.getMonth().toString();
                 const matchesMonth = !filter.month || expMonth === filter.month;
 
                 return matchesCategory && matchesMonth;

@@ -1,148 +1,123 @@
 import { useState } from "react";
-import { Stack, Typography, Box, ButtonBase, Collapse, IconButton, Grid } from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
-import { getCategoryConfig } from "../utils/categoryHelpers";
+import {
+    Stack, Typography, Box, IconButton, Collapse,
+    FormControl, InputLabel, Select, MenuItem, OutlinedInput, Checkbox, ListItemText
+} from "@mui/material";
+import FilterListIcon from '@mui/icons-material/FilterList';
+import CloseIcon from '@mui/icons-material/Close';
+import { getCategoryConfig, CATEGORIES as APP_CATEGORIES } from "../utils/categoryHelpers";
 
-const CATEGORIES = ["Todos", "Comida", "Transporte", "Ocio", "Sueldo", "Vivienda", "Salud", "Otros"];
-const MONTHS = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+const MONTHS = [
+    { id: "", label: "Todos los meses" },
+    { id: "0", label: "Enero" },
+    { id: "1", label: "Febrero" },
+    { id: "2", label: "Marzo" },
+    { id: "3", label: "Abril" },
+    { id: "4", label: "Mayo" },
+    { id: "5", label: "Junio" },
+    { id: "6", label: "Julio" },
+    { id: "7", label: "Agosto" },
+    { id: "8", label: "Septiembre" },
+    { id: "9", label: "Octubre" },
+    { id: "10", label: "Noviembre" },
+    { id: "11", label: "Diciembre" },
+];
 
 const ExpenseFilters = ({ filter, setFilter }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const handleCategoryClick = (category) => {
-        const catLower = category.toLowerCase();
-        setFilter(prev => {
-            const currentCategories = Array.isArray(prev.category) ? prev.category : [];
-            if (category === "Todos") return { ...prev, category: [] };
-            const newCategories = currentCategories.includes(catLower)
-                ? currentCategories.filter(c => c !== catLower)
-                : [...currentCategories, catLower];
-            return { ...prev, category: newCategories };
-        });
+    const handleCategoryChange = (event) => {
+        const { value } = event.target;
+        setFilter(prev => ({
+            ...prev,
+            category: typeof value === 'string' ? value.split(',') : value,
+        }));
     };
 
-    const handleMonthClick = (index) => {
-        const monthVal = index === null ? "" : index.toString();
-        setFilter(prev => ({ ...prev, month: monthVal }));
+    const handleMonthChange = (event) => {
+        setFilter(prev => ({ ...prev, month: event.target.value }));
+    };
+
+    const clearFilters = () => {
+        setFilter({ category: [], month: "" });
     };
 
     return (
         <Stack spacing={0} sx={{ mb: 3, px: 1 }}>
-
             {/* HEADER */}
-            <Box display="flex" alignItems="center" sx={{ py: 1 }}>
-                <IconButton
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    size="small"
-                    sx={{
-                        mr: 1.5,
-                        bgcolor: isExpanded ? 'primary.main' : 'action.hover',
-                        color: isExpanded ? 'white' : 'text.primary',
-                        transition: '0.3s',
-                        p: 1
-                    }}
-                >
-                    <MenuIcon fontSize="small" />
-                </IconButton>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, letterSpacing: -0.5 }}>
-                    Filtros de Gastos
-                </Typography>
+            <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ py: 1 }}>
+                <Stack direction="row" alignItems="center" spacing={1.5}>
+                    <IconButton
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        size="small"
+                        sx={{
+                            bgcolor: isExpanded ? 'primary.main' : 'action.hover',
+                            color: isExpanded ? 'white' : 'text.primary',
+                            '&:hover': { bgcolor: isExpanded ? 'primary.dark' : 'action.selected' }
+                        }}
+                    >
+                        <FilterListIcon fontSize="small" />
+                    </IconButton>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900 }}>
+                        Filtros
+                    </Typography>
+                </Stack>
+
+                {(filter.category.length > 0 || filter.month !== "") && (
+                    <IconButton size="small" onClick={clearFilters} color="error">
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                )}
             </Box>
 
-            {/* PANEL DE CONTROL */}
             <Collapse in={isExpanded}>
-                <Stack spacing={3} sx={{ pt: 2, pb: 1 }}>
+                <Stack spacing={2} sx={{ pt: 2, pb: 1 }}>
 
-                    {/* MESES*/}
-                    <Box>
-                        <Typography variant="caption" sx={{ fontWeight: 900, color: 'text.disabled', mb: 1.5, display: 'block', textTransform: 'uppercase', letterSpacing: 1 }}>
-                            Mes
-                        </Typography>
-                        <Grid container spacing={0.8}>
-                            <Grid item xs={3}>
-                                <ButtonBase
-                                    onClick={() => handleMonthClick(null)}
-                                    sx={{
-                                        width: '100%', py: 0.8, borderRadius: 1.5, border: '1px solid',
-                                        borderColor: !filter.month ? 'primary.main' : 'divider',
-                                        bgcolor: !filter.month ? 'primary.main' : 'transparent',
-                                        color: !filter.month ? 'white' : 'text.secondary',
-                                        fontSize: '0.65rem', fontWeight: 800
-                                    }}
-                                >
-                                    TODO
-                                </ButtonBase>
-                            </Grid>
-                            {MONTHS.map((m, i) => {
-                                const isSelected = filter.month === i.toString();
-                                return (
-                                    <Grid item xs={3} key={m}>
-                                        <ButtonBase
-                                            onClick={() => handleMonthClick(i)}
-                                            sx={{
-                                                width: '100%', py: 0.8, borderRadius: 1.5, border: '1px solid',
-                                                borderColor: isSelected ? 'primary.main' : 'divider',
-                                                bgcolor: isSelected ? 'primary.main' : 'transparent',
-                                                color: isSelected ? 'white' : 'text.secondary',
-                                                fontSize: '0.65rem', fontWeight: isSelected ? 800 : 500
-                                            }}
-                                        >
-                                            {m}
-                                        </ButtonBase>
-                                    </Grid>
-                                );
-                            })}
-                        </Grid>
-                    </Box>
+                    {/* DESPLEGABLE MES */}
+                    <FormControl fullWidth size="small">
+                        <InputLabel id="month-select-label">Mes</InputLabel>
+                        <Select
+                            labelId="month-select-label"
+                            value={filter.month}
+                            label="Mes"
+                            onChange={handleMonthChange}
+                            sx={{ borderRadius: 2 }}
+                        >
+                            {MONTHS.map((m) => (
+                                <MenuItem key={m.id} value={m.id}>
+                                    {m.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                    {/* CATEGORÍAS */}
-                    <Box>
-                        <Typography variant="caption" sx={{ fontWeight: 900, color: 'text.disabled', mb: 1.5, display: 'block', textTransform: 'uppercase', letterSpacing: 1 }}>
-                            Categorías
-                        </Typography>
-                        <Grid container spacing={1}>
-                            {CATEGORIES.map((cat) => {
-                                const catLower = cat.toLowerCase();
-                                const config = getCategoryConfig(catLower);
-                                const isSelected = cat === "Todos"
-                                    ? (!filter.category || filter.category.length === 0)
-                                    : (Array.isArray(filter.category) && filter.category.includes(catLower));
+                    {/* DESPLEGABLE CATEGORÍAS */}
+                    <FormControl fullWidth size="small">
+                        <InputLabel id="category-multiple-label">Categorías</InputLabel>
+                        <Select
+                            labelId="category-multiple-label"
+                            multiple
+                            value={filter.category}
+                            onChange={handleCategoryChange}
+                            input={<OutlinedInput label="Categorías" />}
+                            renderValue={(selected) => {
+                                if (selected.length === 0) return "Todas";
+                                return selected.map(catId => getCategoryConfig(catId).label).join(', ');
+                            }}
+                            sx={{ borderRadius: 2 }}
+                        >
+                            {APP_CATEGORIES.map((cat) => (
+                                <MenuItem key={cat.id} value={cat.id.toLowerCase()}>
+                                    <Checkbox checked={filter.category.indexOf(cat.id.toLowerCase()) > -1} size="small" />
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography fontSize="1.1rem">{cat.icon}</Typography>
+                                        <ListItemText primary={cat.label} />
+                                    </Box>
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-                                const categoryColor = cat === "Todos" ? "#757575" : config.color;
-
-                                return (
-                                    <Grid item xs={6} key={cat}>
-                                        <ButtonBase
-                                            onClick={() => handleCategoryClick(cat)}
-                                            sx={{
-                                                width: '100%',
-                                                py: 1,
-                                                px: 1.5,
-                                                borderRadius: '12px',
-                                                border: '1.5px solid',
-                                                borderColor: isSelected ? categoryColor : 'divider',
-                                                bgcolor: isSelected ? `${categoryColor}10` : 'background.paper',
-                                                color: isSelected ? categoryColor : 'text.secondary',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'flex-start',
-                                                gap: 1,
-                                                transition: '0.2s',
-                                                '&:active': { transform: 'scale(0.96)' }
-                                            }}
-                                        >
-                                            <Typography sx={{ fontSize: '1rem', display: 'flex' }}>
-                                                {cat === "Todos" ? "📂" : config.icon}
-                                            </Typography>
-                                            <Typography sx={{ fontSize: '0.75rem', fontWeight: isSelected ? 800 : 600 }}>
-                                                {cat}
-                                            </Typography>
-                                        </ButtonBase>
-                                    </Grid>
-                                );
-                            })}
-                        </Grid>
-                    </Box>
                 </Stack>
             </Collapse>
         </Stack>

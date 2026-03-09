@@ -14,16 +14,16 @@ const ModalWrapper = ({ open, onClose, title, children }) => {
             transitionDuration={400}
             PaperProps={{
                 sx: {
-                    borderRadius: { xs: 6, sm: 5 },
+                    borderRadius: { xs: 2, sm: 2 },
                     position: { xs: 'fixed', sm: 'relative' },
-                    bottom: { xs: 20, sm: 'auto' },
+                    bottom: { xs: 250, sm: 'auto' },
                     m: 2,
                     overflow: 'hidden',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 }
             }}
         >
-            {/* CABECERA DEL MODAL */}
+            {/* HEADER */}
             <Box
                 display="flex"
                 justifyContent="space-between"

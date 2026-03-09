@@ -11,13 +11,13 @@ import FlightIcon from '@mui/icons-material/Flight';
 
 
 export const CATEGORIES = [
-    { id: 'ahorro', label: 'General', icon: <BusinessIcon />, color: '#0400f7' },
-    { id: 'tecnologia', label: 'Tecnología', icon: <FlashOnIcon />, color: '#00D1FF' },
+    { id: 'ahorro', label: 'Ahorro', icon: <BusinessIcon />, color: '#00f700' },
+    { id: 'electrónica', label: 'Electrónica', icon: <FlashOnIcon />, color: '#00D1FF' },
     { id: 'comida', label: 'Alimentación', icon: <RestaurantIcon />, color: '#FF9800' },
     { id: 'compras', label: 'Compras', icon: <ShoppingBagIcon />, color: '#815183' },
     { id: 'transporte', label: 'Transporte', icon: <DirectionsCarIcon />, color: '#0e4470' },
     { id: 'vivienda', label: 'Vivienda', icon: <HomeIcon />, color: '#795548' },
-    { id: 'servicios', label: 'Servicios', icon: <FlashOnIcon />, color: '#FFEB3B' },
+    { id: 'servicios', label: 'Servicios', icon: <FlashOnIcon />, color: '#1411c4' },
     { id: 'salud', label: 'Salud', icon: <FavoriteIcon />, color: '#ff1100' },
     { id: 'ocio', label: 'Ocio', icon: <TheaterComedyIcon />, color: '#5f186b' },
     { id: 'viajes', label: 'Viajes', icon: <FlightIcon />, color: '#f700c1' },

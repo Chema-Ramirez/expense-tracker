@@ -26,10 +26,20 @@ const DashboardLayout = () => {
             display: "flex",
             flexDirection: "column",
             bgcolor: "background.default",
-            pb: { xs: "90px", sm: "100px" }
+            pb: { xs: "80px", sm: "90px" }
         }}>
             {/* CONTENEDOR PRINCIPAL */}
-            <Container maxWidth="md" sx={{ flex: 1, p: 2, pt: 3 }}>
+            <Container
+                maxWidth="md"
+                sx={{
+                    flex: "0 1 auto",
+                    p: 2,
+                    pt: { xs: 1, sm: 2 },
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center"
+                }}
+            >
                 <Outlet />
             </Container>
 

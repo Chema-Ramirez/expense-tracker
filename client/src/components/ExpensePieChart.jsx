@@ -77,7 +77,7 @@ const ExpensePieChart = ({ expenses, onSegmentClick, activeCategories = [] }) =>
     }
 
     return (
-        <Box sx={{ width: '100%', height: 320, mt: 1 }}>
+        <Box sx={{ width: '100%', height: 340, mt: 2 }}>
             <ResponsiveContainer>
                 <PieChart>
                     <Pie

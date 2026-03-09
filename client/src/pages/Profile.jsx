@@ -18,7 +18,7 @@ import { useExpenses } from "../hooks/useExpenses";
 import { getCategoryConfig, CATEGORIES } from "../utils/categoryHelpers";
 
 const Profile = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const { mode, toggleColorMode } = useContext(ThemeContext);
     const { expenses } = useExpenses();
     const fileInputRef = useRef(null);
@@ -81,7 +81,7 @@ const Profile = () => {
             </Box>
 
             {/* HEADER */}
-            <Paper elevation={0} sx={{ p: 4, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 4 }}>
+            <Paper elevation={0} sx={{ p: 4, borderRadius: 2, border: "1px solid", borderColor: "divider", mb: 4 }}>
                 <Stack alignItems="center" spacing={2}>
                     <Badge
                         overlap="circular"
@@ -109,7 +109,7 @@ const Profile = () => {
 
             {/* MAYORES GASTOS */}
             <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Mayores Gastos </Typography>
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 4 }}>
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", mb: 4 }}>
                 {topExpenses.length > 0 ? (
                     <Stack spacing={2}>
                         {topExpenses.map((exp, i) => {
@@ -138,7 +138,7 @@ const Profile = () => {
 
             {/* GRÁFICA DE BARRAS */}
             <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Gasto por Categoría</Typography>
-            <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 4 }}>
+            <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: "1px solid", borderColor: "divider", mb: 4 }}>
                 {categoryStats.length > 0 ? (
                     <Stack spacing={2.5}>
                         {categoryStats.slice(0, 5).map((cat) => (
@@ -152,9 +152,9 @@ const Profile = () => {
                                     value={cat.percentage}
                                     sx={{
                                         height: 8,
-                                        borderRadius: 5,
+                                        borderRadius: 2,
                                         bgcolor: `${cat.color}15`,
-                                        '& .MuiLinearProgress-bar': { bgcolor: cat.color, borderRadius: 5 }
+                                        '& .MuiLinearProgress-bar': { bgcolor: cat.color, borderRadius: 2 }
                                     }}
                                 />
                             </Box>
@@ -167,7 +167,7 @@ const Profile = () => {
 
             {/* AJUSTES */}
             <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Preferencias</Typography>
-            <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden", mb: 4 }}>
+            <Paper elevation={0} sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider", overflow: "hidden", mb: 4 }}>
                 <ListItem divider>
                     <ListItemIcon><DarkModeIcon color="primary" /></ListItemIcon>
                     <ListItemText primary={<Typography fontWeight={700}>Modo Oscuro</Typography>} secondary="Cambiar apariencia" />
@@ -185,16 +185,13 @@ const Profile = () => {
                 </ListItem>
             </Paper>
 
-            <Button fullWidth variant="text" color="error" startIcon={<LogoutIcon />} onClick={logout} sx={{ py: 1.5, fontWeight: 700, textTransform: "none" }}>
-                Cerrar Sesión
-            </Button>
 
             {/* MODALES */}
             <ModalWrapper open={openEditModal} onClose={() => setOpenEditModal(false)} title="Editar Datos">
                 <Stack spacing={2} pt={1}>
                     <TextField fullWidth label="Nombre" defaultValue={user?.name} variant="filled" />
                     <TextField fullWidth label="Email" defaultValue={user?.email} variant="filled" />
-                    <Button variant="contained" fullWidth sx={{ py: 1.5, borderRadius: 3, fontWeight: 800 }}>Guardar Cambios</Button>
+                    <Button variant="contained" fullWidth sx={{ py: 1.5, borderRadius: 1.5, fontWeight: 800 }}>Guardar Cambios</Button>
                 </Stack>
             </ModalWrapper>
 

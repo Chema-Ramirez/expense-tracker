@@ -1,33 +1,19 @@
 import { useState } from "react";
 import {
-    TextField, Button, Stack, InputAdornment,
-    ToggleButton, ToggleButtonGroup, Typography, Box, CircularProgress, Avatar, Zoom
+    TextField, Button, Stack, MenuItem,
+    Box, Typography, InputAdornment, Avatar, Zoom
 } from "@mui/material";
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import EditIcon from '@mui/icons-material/Edit';
-import { getCategoryConfig } from "../utils/categoryHelpers";
+import { CATEGORIES, getCategoryConfig } from "../utils/categoryHelpers";
 
-const CATEGORIES = [
-    "Comida", "Transporte", "Ocio", "Sueldo", "Vivienda", "Salud", "Otros"
-];
-
-const ExpenseForm = ({ onSubmit, initialData = null }) => {
-    const [loading, setLoading] = useState(false);
-
-    const [formData, setFormData] = useState(() => {
-        if (initialData) {
-            return {
-                ...initialData,
-                date: new Date(initialData.date).toISOString().split('T')[0]
-            };
-        }
-        return {
-            description: "",
-            amount: "",
-            category: "Otros",
-            date: new Date().toISOString().split('T')[0]
-        };
-    });
+const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
+    const [formData, setFormData] = useState(() => ({
+        description: initialData?.description || "",
+        amount: initialData?.amount ? Math.abs(initialData.amount) : "",
+        category: initialData?.category || "COMIDA",
+        date: initialData?.date
+            ? new Date(initialData.date).toISOString().split('T')[0]
+            : new Date().toISOString().split('T')[0]
+    }));
 
     const currentCategoryStyle = getCategoryConfig(formData.category);
 
@@ -36,181 +22,147 @@ const ExpenseForm = ({ onSubmit, initialData = null }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCategoryChange = (_, newCategory) => {
-        if (newCategory !== null) {
-            setFormData(prev => ({ ...prev, category: newCategory }));
-        }
-    };
-
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        if (loading) return;
+        if (!formData.description.trim()) return;
 
-        setLoading(true);
-        try {
-            await onSubmit({
-                ...formData,
-                amount: Number(formData.amount)
-            });
-
-            if (!initialData) {
-                setFormData({
-                    description: "",
-                    amount: "",
-                    category: "Otros",
-                    date: new Date().toISOString().split('T')[0]
-                });
-            }
-        } catch (error) {
-            console.error("Error en el formulario:", error.message);
-        } finally {
-            setLoading(false);
-        }
+        onSubmit({
+            ...formData,
+            amount: Number(formData.amount)
+        });
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <Stack spacing={3}>
-
-                {/* CABECERA DINÁMICA */}
-                <Box display="flex" flexDirection="column" alignItems="center" py={2}>
-                    <Zoom key={formData.category} in={true}>
-                        <Avatar
-                            sx={{
-                                width: 80,
-                                height: 80,
-                                bgcolor: `${currentCategoryStyle.color}15`,
-                                color: currentCategoryStyle.color,
-                                fontSize: "2.5rem",
-                                mb: 1,
-                                border: `2px solid ${currentCategoryStyle.color}30`,
-                                transition: 'all 0.3s ease'
-                            }}
-                        >
-                            {currentCategoryStyle.icon}
-                        </Avatar>
-                    </Zoom>
-                    <Typography variant="h6" fontWeight={800} color={currentCategoryStyle.color}>
-                        {formData.category}
-                    </Typography>
-                </Box>
-
-                <Box>
-                    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ mb: 1.5, display: 'block', letterSpacing: 1 }}>
-                        CAMBIAR CATEGORÍA
-                    </Typography>
-                    <ToggleButtonGroup
-                        value={formData.category}
-                        exclusive
-                        onChange={handleCategoryChange}
-                        fullWidth
-                        size="small"
-                        disabled={loading}
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            {/* CABECERA DINÁMICA */}
+            <Box display="flex" flexDirection="column" alignItems="center" py={2} mb={1}>
+                <Zoom key={formData.category} in={true}>
+                    <Avatar
                         sx={{
-                            flexWrap: "wrap",
-                            gap: 1,
-                            "& .MuiToggleButton-root": {
-                                borderRadius: 3,
-                                border: "1px solid !important",
-                                flexGrow: 1,
-                                borderColor: "divider",
-                                textTransform: 'capitalize',
-                                px: 2,
-                                py: 1,
-                                transition: 'all 0.2s ease',
-                                color: 'text.secondary',
-                                "&.Mui-selected": {
-                                    bgcolor: `${currentCategoryStyle.color}20`,
-                                    color: currentCategoryStyle.color,
-                                    borderColor: `${currentCategoryStyle.color} !important`,
-                                    fontWeight: 'bold',
-                                    "&:hover": {
-                                        bgcolor: `${currentCategoryStyle.color}30`,
-                                    }
-                                }
+                            width: 100,
+                            height: 100,
+                            bgcolor: `${currentCategoryStyle.color}15`,
+                            color: currentCategoryStyle.color,
+                            fontSize: "2.5rem",
+                            mb: 2,
+                            border: `2px solid ${currentCategoryStyle.color}30`,
+                            transition: 'all 0.3s ease',
+                            boxShadow: `0 8px 20px ${currentCategoryStyle.color}20`
+                        }}
+                    >
+                        {currentCategoryStyle.icon}
+                    </Avatar>
+                </Zoom>
+                <Typography
+                    variant="button"
+                    fontWeight={800}
+                    sx={{ color: currentCategoryStyle.color, letterSpacing: 1 }}
+                >
+                    {currentCategoryStyle.label}
+                </Typography>
+            </Box>
+
+            <Stack spacing={3}>
+                {/* CONCEPTO OBLIGATORIO */}
+                <TextField
+                    label="Nombre/Descripción del Gasto"
+                    name="description"
+                    required
+                    fullWidth
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Ej. Cena con amigos"
+                    autoFocus
+                />
+
+                {/* SELECTOR CATEGORIA */}
+                <TextField
+                    select
+                    label="Categoría"
+                    name="category"
+                    fullWidth
+                    value={formData.category}
+                    onChange={handleChange}
+                >
+                    {CATEGORIES.map((option) => {
+                        const config = getCategoryConfig(option.id);
+                        return (
+                            <MenuItem key={option.id} value={option.id}>
+                                <Stack direction="row" spacing={2} alignItems="center">
+                                    <Avatar
+                                        sx={{
+                                            width: 24, height: 24,
+                                            bgcolor: `${config.color}15`,
+                                            color: config.color,
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        {config.icon}
+                                    </Avatar>
+                                    <Typography variant="body2" fontWeight={600}>
+                                        {config.label}
+                                    </Typography>
+                                </Stack>
+                            </MenuItem>
+                        );
+                    })}
+                </TextField>
+
+                <Stack direction="row" spacing={0.5}>
+                    <TextField
+                        label="Importe"
+                        name="amount"
+                        type="number"
+                        required
+                        fullWidth
+                        value={formData.amount}
+                        onChange={handleChange}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                        }}
+                    />
+                    <TextField
+                        label="Fecha"
+                        name="date"
+                        type="date"
+                        required
+                        fullWidth
+                        value={formData.date}
+                        onChange={handleChange}
+                        InputLabelProps={{ shrink: true }}
+                    />
+                </Stack>
+
+                <Stack direction="row" spacing={2} pt={10}>
+                    <Button
+                        fullWidth
+                        onClick={onCancel}
+                        sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'none' }}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        fullWidth
+                        sx={{
+                            borderRadius: 3,
+                            py: 1.5,
+                            fontWeight: 800,
+                            textTransform: 'none',
+                            boxShadow: `0 8px 16px ${currentCategoryStyle.color}40`,
+                            bgcolor: currentCategoryStyle.color,
+                            '&:hover': {
+                                bgcolor: currentCategoryStyle.color,
+                                filter: 'brightness(0.9)'
                             }
                         }}
                     >
-                        {CATEGORIES.map(cat => (
-                            <ToggleButton key={cat} value={cat}>
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Box sx={{ fontSize: '1.1rem', display: 'flex' }}>
-                                        {getCategoryConfig(cat).icon}
-                                    </Box>
-                                    <Typography variant="body2">{cat}</Typography>
-                                </Stack>
-                            </ToggleButton>
-                        ))}
-                    </ToggleButtonGroup>
-                </Box>
-
-                <TextField
-                    label="Cantidad"
-                    name="amount"
-                    type="number"
-                    fullWidth
-                    required
-                    disabled={loading}
-                    value={formData.amount}
-                    onChange={handleChange}
-                    inputProps={{ step: "0.01" }}
-                    InputProps={{
-                        startAdornment: <InputAdornment position="start">€</InputAdornment>,
-                        sx: { borderRadius: 3, fontWeight: 700, fontSize: '1.2rem' }
-                    }}
-                />
-
-                <TextField
-                    label="Concepto / Descripción"
-                    name="description"
-                    placeholder="Ej: Cena con amigos"
-                    fullWidth
-                    disabled={loading}
-                    value={formData.description}
-                    onChange={handleChange}
-                    InputProps={{ sx: { borderRadius: 3 } }}
-                />
-
-                <TextField
-                    label="Fecha"
-                    name="date"
-                    type="date"
-                    fullWidth
-                    disabled={loading}
-                    value={formData.date}
-                    onChange={handleChange}
-                    InputLabelProps={{ shrink: true }}
-                    InputProps={{ sx: { borderRadius: 3 } }}
-                />
-
-                <Button
-                    fullWidth
-                    variant="contained"
-                    type="submit"
-                    size="large"
-                    disabled={loading}
-                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : (initialData ? <EditIcon /> : <AddCircleOutlineIcon />)}
-                    sx={{
-                        py: 1.8,
-                        mt: 2,
-                        fontWeight: 800,
-                        borderRadius: 4,
-                        bgcolor: currentCategoryStyle.color,
-                        '&:hover': {
-                            bgcolor: currentCategoryStyle.color,
-                            filter: 'brightness(0.9)'
-                        },
-                        boxShadow: `0 8px 20px ${currentCategoryStyle.color}40`,
-                        transition: 'all 0.3s ease'
-                    }}
-                >
-                    {loading
-                        ? "Guardando..."
-                        : (initialData ? "Actualizar Registro" : "Confirmar Gasto")
-                    }
-                </Button>
+                        {initialData ? "Actualizar" : "Añadir Movimiento"}
+                    </Button>
+                </Stack>
             </Stack>
-        </form>
+        </Box>
     );
 };
 
