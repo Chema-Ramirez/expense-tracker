@@ -14,7 +14,7 @@ export const CATEGORIES = [
     { id: 'ahorro', label: 'Ahorro', icon: <BusinessIcon />, color: '#00f700' },
     { id: 'electrónica', label: 'Electrónica', icon: <FlashOnIcon />, color: '#00D1FF' },
     { id: 'comida', label: 'Alimentación', icon: <RestaurantIcon />, color: '#FF9800' },
-    { id: 'compras', label: 'Compras', icon: <ShoppingBagIcon />, color: '#815183' },
+    { id: 'compras', label: 'Compras', icon: <ShoppingBagIcon />, color: '#9c9201' },
     { id: 'transporte', label: 'Transporte', icon: <DirectionsCarIcon />, color: '#0e4470' },
     { id: 'vivienda', label: 'Vivienda', icon: <HomeIcon />, color: '#795548' },
     { id: 'servicios', label: 'Servicios', icon: <FlashOnIcon />, color: '#1411c4' },

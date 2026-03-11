@@ -112,7 +112,7 @@ const DashboardLayout = () => {
                             {isActive && (
                                 <Box sx={{
                                     position: "absolute",
-                                    bottom: -6,
+                                    bottom: 3,
                                     width: 5,
                                     height: 5,
                                     borderRadius: "50%",
