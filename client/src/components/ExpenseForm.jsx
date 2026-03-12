@@ -33,54 +33,58 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
     };
 
     return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-            {/* CABECERA DINÁMICA */}
-            <Box display="flex" flexDirection="column" alignItems="center" py={2} mb={1}>
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+                mt: 0,
+                pt: 4, // Despega el contenido del borde superior del móvil
+                px: 1  // Un poco de aire a los lados
+            }}
+        >
+            {/* CABECERA DINÁMICA - Muy compacta */}
+            <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
                 <Zoom key={formData.category} in={true}>
                     <Avatar
                         sx={{
-                            width: 100,
-                            height: 100,
+                            width: 45, // Reducido para ahorrar espacio vital
+                            height: 45,
                             bgcolor: `${currentCategoryStyle.color}15`,
                             color: currentCategoryStyle.color,
-                            fontSize: "2.5rem",
-                            mb: 2,
-                            border: `2px solid ${currentCategoryStyle.color}30`,
-                            transition: 'all 0.3s ease',
-                            boxShadow: `0 8px 20px ${currentCategoryStyle.color}20`
+                            fontSize: "1.2rem",
+                            mb: 0.5,
+                            border: `1px solid ${currentCategoryStyle.color}30`,
                         }}
                     >
                         {currentCategoryStyle.icon}
                     </Avatar>
                 </Zoom>
                 <Typography
-                    variant="button"
+                    variant="caption"
                     fontWeight={800}
-                    sx={{ color: currentCategoryStyle.color, letterSpacing: 1 }}
+                    sx={{ color: currentCategoryStyle.color, letterSpacing: 0.5, fontSize: '0.65rem' }}
                 >
                     {currentCategoryStyle.label}
                 </Typography>
             </Box>
 
-            <Stack spacing={3}>
-                {/* CONCEPTO OBLIGATORIO */}
+            <Stack spacing={1.8}> {/* Spacing reducido para que todo suba */}
                 <TextField
-                    label="Nombre/Descripción del Gasto"
+                    label="Descripción"
                     name="description"
                     required
                     fullWidth
+                    size="small"
                     value={formData.description}
                     onChange={handleChange}
-                    placeholder="Ej. Cena con amigos"
-                    autoFocus
                 />
 
-                {/* SELECTOR CATEGORIA */}
                 <TextField
                     select
                     label="Categoría"
                     name="category"
                     fullWidth
+                    size="small"
                     value={formData.category}
                     onChange={handleChange}
                 >
@@ -88,18 +92,11 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                         const config = getCategoryConfig(option.id);
                         return (
                             <MenuItem key={option.id} value={option.id}>
-                                <Stack direction="row" spacing={2} alignItems="center">
-                                    <Avatar
-                                        sx={{
-                                            width: 24, height: 24,
-                                            bgcolor: `${config.color}15`,
-                                            color: config.color,
-                                            fontSize: '0.9rem'
-                                        }}
-                                    >
+                                <Stack direction="row" spacing={1.5} alignItems="center">
+                                    <Avatar sx={{ width: 18, height: 18, bgcolor: `${config.color}15`, color: config.color, fontSize: '0.7rem' }}>
                                         {config.icon}
                                     </Avatar>
-                                    <Typography variant="body2" fontWeight={600}>
+                                    <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
                                         {config.label}
                                     </Typography>
                                 </Stack>
@@ -108,13 +105,14 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                     })}
                 </TextField>
 
-                <Stack direction="row" spacing={0.5}>
+                <Stack direction="row" spacing={1}>
                     <TextField
                         label="Importe"
                         name="amount"
                         type="number"
                         required
                         fullWidth
+                        size="small"
                         value={formData.amount}
                         onChange={handleChange}
                         InputProps={{
@@ -127,17 +125,25 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                         type="date"
                         required
                         fullWidth
+                        size="small"
                         value={formData.date}
                         onChange={handleChange}
                         InputLabelProps={{ shrink: true }}
                     />
                 </Stack>
 
-                <Stack direction="row" spacing={2} pt={10}>
+                {/* BOTONES MÁS PEQUEÑOS Y COMPACTOS */}
+                <Stack direction="row" spacing={1.5} pt={1}>
                     <Button
                         fullWidth
                         onClick={onCancel}
-                        sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'none' }}
+                        size="small" // Tamaño pequeño de MUI
+                        sx={{
+                            color: 'text.secondary',
+                            fontWeight: 700,
+                            textTransform: 'none',
+                            fontSize: '0.8rem' // Fuente más pequeña
+                        }}
                     >
                         Cancelar
                     </Button>
@@ -145,20 +151,19 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                         type="submit"
                         variant="contained"
                         fullWidth
+                        size="small" // Tamaño pequeño de MUI
                         sx={{
-                            borderRadius: 3,
-                            py: 1.5,
+                            borderRadius: 2,
+                            py: 0.8, // Menos relleno vertical
                             fontWeight: 800,
                             textTransform: 'none',
-                            boxShadow: `0 8px 16px ${currentCategoryStyle.color}40`,
+                            fontSize: '0.8rem', // Fuente más pequeña
                             bgcolor: currentCategoryStyle.color,
-                            '&:hover': {
-                                bgcolor: currentCategoryStyle.color,
-                                filter: 'brightness(0.9)'
-                            }
+                            boxShadow: 'none', // Menos sombra para un look más limpio
+                            '&:hover': { bgcolor: currentCategoryStyle.color, filter: 'brightness(0.9)' }
                         }}
                     >
-                        {initialData ? "Actualizar" : "Añadir Movimiento"}
+                        {initialData ? "Actualizar" : "Guardar"}
                     </Button>
                 </Stack>
             </Stack>
