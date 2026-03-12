@@ -1,78 +1,156 @@
 import { useState } from "react";
 import {
-    Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, Button, Stack, InputAdornment, Typography, Box, MenuItem
+    TextField, Button, Stack, MenuItem,
+    Box, Typography, InputAdornment, Avatar, Zoom
 } from "@mui/material";
-import { CATEGORIES } from "../utils/categoryHelpers";
+import { CATEGORIES, getCategoryConfig } from "../utils/categoryHelpers";
 
-const GoalFormModal = ({ open, onClose, onSubmit }) => {
-    const [formData, setFormData] = useState({
-        title: "",
-        targetAmount: "",
-        currentAmount: 0,
-        category: "ahorro",
-        deadline: ""
-    });
+const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
+    const [formData, setFormData] = useState(() => ({
+        description: initialData?.description || "",
+        amount: initialData?.amount ? Math.abs(initialData.amount) : "",
+        category: initialData?.category || "COMIDA",
+        date: initialData?.date
+            ? new Date(initialData.date).toISOString().split('T')[0]
+            : new Date().toISOString().split('T')[0]
+    }));
+
+    const currentCategoryStyle = getCategoryConfig(formData.category);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (!formData.description.trim()) return;
         onSubmit({
-            name: formData.title,
-            category: formData.category,
-            targetAmount: Number(formData.targetAmount),
-            currentAmount: Number(formData.currentAmount) || 0,
-            deadline: formData.deadline
+            ...formData,
+            amount: Number(formData.amount)
         });
-        setFormData({ title: "", targetAmount: "", currentAmount: 0, category: "ahorro", deadline: "" });
-        onClose();
     };
 
     return (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 6, p: 1 } }}>
-            <form onSubmit={handleSubmit}>
-                <DialogTitle sx={{ textAlign: 'center', pt: 4, pb: 1 }}>
-                    <Typography variant="h6" fontWeight={800}>Nueva Meta de Ahorro</Typography>
-                    <Box sx={{ width: 100, height: 4, bgcolor: 'primary.main', borderRadius: 2, margin: '12px auto 0' }} />
-                </DialogTitle>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+            {/* CABECERA */}
+            <Box display="flex" flexDirection="column" alignItems="center" py={1} mb={1}>
+                <Zoom key={formData.category} in={true}>
+                    <Avatar
+                        sx={{
+                            width: 60,
+                            height: 60,
+                            bgcolor: `${currentCategoryStyle.color}15`,
+                            color: currentCategoryStyle.color,
+                            fontSize: "1.8rem",
+                            mb: 1,
+                            border: `2px solid ${currentCategoryStyle.color}30`,
+                            transition: 'all 0.3s ease',
+                        }}
+                    >
+                        {currentCategoryStyle.icon}
+                    </Avatar>
+                </Zoom>
+                <Typography
+                    variant="button"
+                    fontWeight={800}
+                    sx={{ color: currentCategoryStyle.color, letterSpacing: 1, fontSize: '0.75rem' }}
+                >
+                    {currentCategoryStyle.label}
+                </Typography>
+            </Box>
 
-                <DialogContent>
-                    <Stack spacing={3} mt={1}>
-                        <TextField label="¿Qué quieres conseguir?" name="title" fullWidth required value={formData.title} onChange={handleChange} autoFocus />
+            <Stack spacing={2}>
+                <TextField
+                    label="Descripción"
+                    name="description"
+                    required
+                    fullWidth
+                    size="small"
+                    value={formData.description}
+                    onChange={handleChange}
+                    autoFocus
+                />
 
-                        <TextField select label="Categoría" name="category" fullWidth value={formData.category} onChange={handleChange}>
-                            {CATEGORIES.map((option) => (
-                                <MenuItem key={option.id} value={option.id}>
-                                    <Stack direction="row" spacing={1} alignItems="center">
-                                        <Box sx={{ display: 'flex', fontSize: '1.2rem' }}>{option.icon}</Box>
-                                        <Typography>{option.label}</Typography>
-                                    </Stack>
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                <TextField
+                    select
+                    label="Categoría"
+                    name="category"
+                    fullWidth
+                    size="small"
+                    value={formData.category}
+                    onChange={handleChange}
+                >
+                    {CATEGORIES.map((option) => {
+                        const config = getCategoryConfig(option.id);
+                        return (
+                            <MenuItem key={option.id} value={option.id}>
+                                <Stack direction="row" spacing={2} alignItems="center">
+                                    <Avatar sx={{ width: 20, height: 20, bgcolor: `${config.color}15`, color: config.color, fontSize: '0.8rem' }}>
+                                        {config.icon}
+                                    </Avatar>
+                                    <Typography variant="body2">{config.label}</Typography>
+                                </Stack>
+                            </MenuItem>
+                        );
+                    })}
+                </TextField>
 
-                        <TextField label="Meta total" name="targetAmount" type="number" fullWidth required value={formData.targetAmount} onChange={handleChange}
-                            InputProps={{ startAdornment: <InputAdornment position="start">€</InputAdornment> }} />
+                <Stack direction="row" spacing={1}>
+                    <TextField
+                        label="Importe"
+                        name="amount"
+                        type="number"
+                        required
+                        fullWidth
+                        size="small"
+                        value={formData.amount}
+                        onChange={handleChange}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start">€</InputAdornment>,
+                        }}
+                    />
+                    <TextField
+                        label="Fecha"
+                        name="date"
+                        type="date"
+                        required
+                        fullWidth
+                        size="small"
+                        value={formData.date}
+                        onChange={handleChange}
+                        InputLabelProps={{ shrink: true }}
+                    />
+                </Stack>
 
-                        <TextField label="Ahorro actual (opcional)" name="currentAmount" type="number" fullWidth value={formData.currentAmount} onChange={handleChange}
-                            InputProps={{ startAdornment: <InputAdornment position="start">€</InputAdornment> }} />
-
-                        <TextField label="¿Para cuándo lo quieres?" name="deadline" type="date" fullWidth value={formData.deadline} onChange={handleChange}
-                            slotProps={{ inputLabel: { shrink: true } }} helperText="Para calcular tu plan mensual" />
-                    </Stack>
-                </DialogContent>
-
-                <DialogActions sx={{ p: 3, gap: 2 }}>
-                    <Button fullWidth onClick={onClose} sx={{ color: 'text.secondary', fontWeight: 700 }}>Cancelar</Button>
-                    <Button fullWidth type="submit" variant="contained" sx={{ borderRadius: 3, fontWeight: 700 }}>Crear Meta</Button>
-                </DialogActions>
-            </form>
-        </Dialog>
+                {/* BOTONES */}
+                <Stack direction="row" spacing={2} pt={2}>
+                    <Button
+                        fullWidth
+                        onClick={onCancel}
+                        sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'none' }}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        fullWidth
+                        sx={{
+                            borderRadius: 3,
+                            py: 1,
+                            fontWeight: 800,
+                            textTransform: 'none',
+                            bgcolor: currentCategoryStyle.color,
+                            '&:hover': { bgcolor: currentCategoryStyle.color, filter: 'brightness(0.9)' }
+                        }}
+                    >
+                        {initialData ? "Actualizar" : "Guardar"}
+                    </Button>
+                </Stack>
+            </Stack>
+        </Box>
     );
 };
 
-export default GoalFormModal;
+export default ExpenseForm;

@@ -7,7 +7,15 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
 
     if (!expenses || !expenses.length) {
         return (
-            <Box sx={{ p: 4, borderRadius: 5, border: '2px dashed', borderColor: 'divider', textAlign: 'center' }}>
+            <Box sx={{
+                p: 4,
+                borderRadius: 5,
+                border: '2px dashed',
+                borderColor: 'divider',
+                textAlign: 'center',
+                bgcolor: 'background.paper',
+                opacity: 0.8
+            }}>
                 <Typography variant="body2" color="text.secondary" fontWeight={600}>
                     No hay movimientos registrados
                 </Typography>
@@ -15,7 +23,6 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
         );
     }
 
-    // GASTOS POR FECHA
     const groupedExpenses = expenses.reduce((groups, expense) => {
         const dateObj = typeof expense.date === 'string' ? parseISO(expense.date) : new Date(expense.date);
         const dateKey = format(dateObj, 'yyyy-MM-dd');
@@ -35,19 +42,19 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
     };
 
     return (
-        <Stack spacing={4}>
+        <Stack spacing={4} sx={{ pb: 4 }}>
             {Object.keys(groupedExpenses)
                 .sort((a, b) => b.localeCompare(a))
                 .map((dateKey) => (
                     <Box key={dateKey}>
-                        {/* HEADER */}
+                        {/* CABECERA DE FECHA */}
                         <Typography
                             variant="caption"
                             fontWeight={900}
                             color="text.disabled"
                             sx={{
                                 px: 1,
-                                mb: 2,
+                                mb: 1.5,
                                 display: 'block',
                                 textTransform: 'uppercase',
                                 letterSpacing: 1.2,
@@ -57,13 +64,12 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
                             {getDateHeader(dateKey)}
                         </Typography>
 
-                        {/* LISTA DE ITEMS */}
+                        {/* MOVIMIENTOS DEL DÍA */}
                         <Stack spacing={1.5}>
                             {groupedExpenses[dateKey].map((expense) => (
                                 <ExpenseItem
                                     key={expense._id || expense.id}
                                     expense={expense}
-                                    showActions={true}
                                     onEdit={() => onEdit && onEdit(expense)}
                                     onDelete={() => onDelete && onDelete(expense._id || expense.id)}
                                 />

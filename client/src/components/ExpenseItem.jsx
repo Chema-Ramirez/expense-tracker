@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-    ListItem, ListItemButton, Stack, Avatar, Box, Typography,
+    ListItem, Stack, Avatar, Box, Typography,
     Collapse, Divider, Button, Paper, useTheme
 } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -14,7 +14,10 @@ const ExpenseItem = ({ expense, onEdit, onDelete }) => {
 
     const categoryName = expense.category?.toLowerCase().trim() || "otros";
     const config = getCategoryConfig(categoryName);
-    const isIngreso = categoryName === 'sueldo' || categoryName === 'ingreso';
+
+    const isIngreso = categoryName === 'sueldo' ||
+        categoryName === 'ingreso' ||
+        categoryName === 'ahorro';
 
     return (
         <Paper
@@ -56,7 +59,7 @@ const ExpenseItem = ({ expense, onEdit, onDelete }) => {
                         </Typography>
                         {!isExpanded && (
                             <Typography variant="caption" color="text.disabled" fontWeight={600}>
-                                {new Date(expense.date).toLocaleDateString()} • {expense.category}
+                                {new Date(expense.date).toLocaleDateString()} • {config.label}
                             </Typography>
                         )}
                     </Box>
@@ -101,7 +104,7 @@ const ExpenseItem = ({ expense, onEdit, onDelete }) => {
                             </Typography>
                         </Box>
 
-                        {/* BOTONES DE ACCIÓN */}
+                        {/* BOTONES */}
                         <Stack direction="row" spacing={1} justifyContent="flex-end">
                             <Button
                                 size="small"

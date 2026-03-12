@@ -3,9 +3,14 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import SavingsIcon from '@mui/icons-material/Savings';
 
 const MonthlySummary = ({ expenses }) => {
-    const totalSpent = expenses.reduce((acc, curr) => acc + curr.amount, 0);
-    const budget = 0;
-    const remaining = budget - totalSpent;
+    const totalSpent = expenses
+        .filter(exp => exp.category !== "AHORRO")
+        .reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalSaved = expenses
+        .filter(exp => exp.category === "AHORRO")
+        .reduce((acc, curr) => acc + curr.amount, 0);
+
 
     return (
         <Paper
@@ -23,7 +28,7 @@ const MonthlySummary = ({ expenses }) => {
                 divider={<Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />}
                 spacing={1}
             >
-                {/* GASTADO */}
+                {/* SECCIÓN GASTADO */}
                 <Box sx={{ flex: 1 }}>
                     <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
                         <TrendingDownIcon sx={{ color: 'error.main', fontSize: 18 }} />
@@ -38,7 +43,7 @@ const MonthlySummary = ({ expenses }) => {
                     </Stack>
                 </Box>
 
-                {/* Ahorrado */}
+                {/* SECCIÓN AHORRADO */}
                 <Box sx={{ flex: 1 }}>
                     <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
                         <SavingsIcon sx={{ color: 'success.main', fontSize: 18 }} />
@@ -47,7 +52,7 @@ const MonthlySummary = ({ expenses }) => {
                                 Ahorrado
                             </Typography>
                             <Typography variant="subtitle1" fontWeight={800} color="success.main" sx={{ lineHeight: 1.2 }}>
-                                {remaining.toLocaleString()}€
+                                +{totalSaved.toLocaleString()}€
                             </Typography>
                         </Box>
                     </Stack>
