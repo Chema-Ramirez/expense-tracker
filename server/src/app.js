@@ -20,13 +20,20 @@ const allowedOrigins = [
 
 const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        console.log("Petición desde el origen:", origin);
+
+        const normalizedOrigin = origin ? origin.replace(/\/$/, "") : null;
+
+        if (!origin || allowedOrigins.includes(normalizedOrigin)) {
             callback(null, true);
         } else {
+            console.error("BLOQUEADO POR CORS:", origin);
             callback(new Error("Acceso denegado por CORS"));
         }
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
