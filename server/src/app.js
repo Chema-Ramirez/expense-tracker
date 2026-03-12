@@ -15,7 +15,7 @@ connectDB();
 // CONFIG CORS
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://bitoink-app.netlify.app"
+    "https://bitoink.netlify.app"
 ];
 
 const corsOptions = {
