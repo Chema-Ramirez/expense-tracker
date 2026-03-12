@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "https://bitoink.onrender.com",
+    baseURL: "https://bitoink.onrender.com/api",
 });
 
 //INTERCEPTOR DE PETICION
