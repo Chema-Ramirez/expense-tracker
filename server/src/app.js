@@ -13,28 +13,6 @@ const app = express();
 connectDB();
 
 // CONFIG CORS
-const allowedOrigins = [
-    "http://localhost:5173",
-    "https://bitoink.netlify.app"
-];
-
-const corsOptions = {
-    origin: function (origin, callback) {
-        console.log("Petición desde el origen:", origin);
-
-        const normalizedOrigin = origin ? origin.replace(/\/$/, "") : null;
-
-        if (!origin || allowedOrigins.includes(normalizedOrigin)) {
-            callback(null, true);
-        } else {
-            console.error("BLOQUEADO POR CORS:", origin);
-            callback(new Error("Acceso denegado por CORS"));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
 
 app.use(cors({
     origin: ["https://bitoink.netlify.app", "http://localhost:5173"],

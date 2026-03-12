@@ -4,7 +4,7 @@ import SavingsIcon from '@mui/icons-material/Savings';
 
 const MonthlySummary = ({ expenses }) => {
     const totalSpent = expenses.reduce((acc, curr) => acc + curr.amount, 0);
-    const budget = 2000;
+    const budget = 0;
     const remaining = budget - totalSpent;
 
     return (
@@ -38,13 +38,13 @@ const MonthlySummary = ({ expenses }) => {
                     </Stack>
                 </Box>
 
-                {/* Acumulado */}
+                {/* Ahorrado */}
                 <Box sx={{ flex: 1 }}>
                     <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
                         <SavingsIcon sx={{ color: 'success.main', fontSize: 18 }} />
                         <Box>
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1, fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>
-                                Acumulado
+                                Ahorrado
                             </Typography>
                             <Typography variant="subtitle1" fontWeight={800} color="success.main" sx={{ lineHeight: 1.2 }}>
                                 {remaining.toLocaleString()}€
