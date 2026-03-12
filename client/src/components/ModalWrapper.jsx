@@ -14,12 +14,11 @@ const ModalWrapper = ({ open, onClose, title, children }) => {
             transitionDuration={400}
             PaperProps={{
                 sx: {
-                    borderRadius: { xs: 2, sm: 2 },
-                    position: { xs: 'fixed', sm: 'relative' },
-                    bottom: { xs: 250, sm: 'auto' },
+                    borderRadius: 5,
                     m: 2,
                     overflow: 'hidden',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                    backgroundImage: 'none',
                 }
             }}
         >
@@ -29,11 +28,11 @@ const ModalWrapper = ({ open, onClose, title, children }) => {
                 justifyContent="space-between"
                 alignItems="center"
                 px={3}
-                pt={3}
+                pt={2.5}
                 pb={1}
             >
                 <Typography
-                    variant="h6"
+                    variant="subtitle1"
                     fontWeight={900}
                     sx={{
                         letterSpacing: '-0.02em',
@@ -50,7 +49,7 @@ const ModalWrapper = ({ open, onClose, title, children }) => {
                     size="small"
                     sx={{
                         bgcolor: 'action.hover',
-                        '&:hover': { bgcolor: 'error.lighter', color: 'error.main' },
+                        '&:hover': { bgcolor: 'error.main', color: 'white' },
                         transition: '0.2s'
                     }}
                 >
@@ -59,7 +58,7 @@ const ModalWrapper = ({ open, onClose, title, children }) => {
             </Box>
 
             {/* CONTENIDO */}
-            <DialogContent sx={{ p: 3, pt: 1 }}>
+            <DialogContent sx={{ p: 0 }}>
                 {children}
             </DialogContent>
         </Dialog>

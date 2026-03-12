@@ -24,7 +24,7 @@ const PiggyBank = () => {
     };
 
     return (
-        <Container maxWidth="sm" sx={{ py: 2, pb: 2 }}>
+        <Container maxWidth="sm" sx={{ py: 2, pb: 4 }}>
             {/* HEADER */}
             <Box mb={4}>
                 <Stack direction="row" alignItems="center" spacing={1.5} mb={1}>
@@ -43,31 +43,7 @@ const PiggyBank = () => {
                 <PiggySummary goals={goals} />
             </Box>
 
-            {/* BOTÓN CREAR OBJETIVO */}
-            <Button
-                fullWidth
-                variant="contained"
-                startIcon={<AddCircleOutlineIcon />}
-                onClick={() => setOpenModal(true)}
-                sx={{
-                    mb: 4,
-                    py: 1.8,
-                    borderRadius: 4,
-                    fontWeight: 800,
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    boxShadow: `0 8px 20px ${theme.palette.primary.main}30`,
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: `0 12px 25px ${theme.palette.primary.main}50`,
-                    }
-                }}
-            >
-                Crear nuevo objetivo
-            </Button>
-
-            {/* LISTADO */}
+            {/* TÍTULO DE SECCIÓN Y CONTADOR */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2} px={1}>
                 <Typography variant="subtitle1" fontWeight={800} color="text.primary">
                     Objetivos activos
@@ -78,16 +54,16 @@ const PiggyBank = () => {
                 />
             </Stack>
 
-            {/* RENDERIZADO */}
+            {/* RENDERIZADO  */}
             {loading && goals.length === 0 ? (
                 <Box textAlign="center" py={10}>
-                    <CircularProgress size={40} thickness={5} sx={{ mb: 2, borderRadius: 10 }} />
+                    <CircularProgress size={40} thickness={5} sx={{ mb: 2 }} />
                     <Typography variant="body2" fontWeight={600} color="text.secondary">
                         Sincronizando tus ahorros...
                     </Typography>
                 </Box>
             ) : (
-                <Stack spacing={2.5}>
+                <Stack spacing={2.5} mb={4}>
                     {goals.length > 0 ? (
                         goals.map((goal, index) => (
                             <Fade in={true} timeout={300 + (index * 100)} key={goal._id || goal.id}>
@@ -130,7 +106,30 @@ const PiggyBank = () => {
                 </Stack>
             )}
 
-            {/* MODAL NUEVA META */}
+            {/* BOTÓN CREAR OBJETIVO */}
+            <Button
+                fullWidth
+                variant="contained"
+                startIcon={<AddCircleOutlineIcon />}
+                onClick={() => setOpenModal(true)}
+                sx={{
+                    py: 1.8,
+                    borderRadius: 4,
+                    fontWeight: 800,
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    boxShadow: `0 8px 20px ${theme.palette.primary.main}30`,
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: `0 12px 25px ${theme.palette.primary.main}50`,
+                    }
+                }}
+            >
+                Crear nuevo objetivo
+            </Button>
+
+            {/* MODAL */}
             <GoalFormModal
                 open={openModal}
                 onClose={() => setOpenModal(false)}

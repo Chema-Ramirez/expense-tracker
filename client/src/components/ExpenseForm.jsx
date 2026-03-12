@@ -25,7 +25,6 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData.description.trim()) return;
-
         onSubmit({
             ...formData,
             amount: Number(formData.amount)
@@ -36,23 +35,19 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
         <Box
             component="form"
             onSubmit={handleSubmit}
-            sx={{
-                mt: 0,
-                pt: 4, // Despega el contenido del borde superior del móvil
-                px: 1  // Un poco de aire a los lados
-            }}
+            sx={{ p: 3, pt: 1 }} // 
         >
-            {/* CABECERA DINÁMICA - Muy compacta */}
-            <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
+            {/* HEADER */}
+            <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
                 <Zoom key={formData.category} in={true}>
                     <Avatar
                         sx={{
-                            width: 45, // Reducido para ahorrar espacio vital
-                            height: 45,
+                            width: 56,
+                            height: 56,
                             bgcolor: `${currentCategoryStyle.color}15`,
                             color: currentCategoryStyle.color,
-                            fontSize: "1.2rem",
-                            mb: 0.5,
+                            fontSize: "1.5rem",
+                            mb: 1,
                             border: `1px solid ${currentCategoryStyle.color}30`,
                         }}
                     >
@@ -62,13 +57,13 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                 <Typography
                     variant="caption"
                     fontWeight={800}
-                    sx={{ color: currentCategoryStyle.color, letterSpacing: 0.5, fontSize: '0.65rem' }}
+                    sx={{ color: currentCategoryStyle.color, letterSpacing: 1, textTransform: 'uppercase' }}
                 >
                     {currentCategoryStyle.label}
                 </Typography>
             </Box>
 
-            <Stack spacing={1.8}> {/* Spacing reducido para que todo suba */}
+            <Stack spacing={2.5}>
                 <TextField
                     label="Descripción"
                     name="description"
@@ -77,6 +72,8 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                     size="small"
                     value={formData.description}
                     onChange={handleChange}
+                    autoFocus
+                    InputLabelProps={{ shrink: true }}
                 />
 
                 <TextField
@@ -87,25 +84,24 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                     size="small"
                     value={formData.category}
                     onChange={handleChange}
+                    InputLabelProps={{ shrink: true }}
                 >
                     {CATEGORIES.map((option) => {
                         const config = getCategoryConfig(option.id);
                         return (
                             <MenuItem key={option.id} value={option.id}>
                                 <Stack direction="row" spacing={1.5} alignItems="center">
-                                    <Avatar sx={{ width: 18, height: 18, bgcolor: `${config.color}15`, color: config.color, fontSize: '0.7rem' }}>
+                                    <Avatar sx={{ width: 22, height: 22, bgcolor: `${config.color}10`, color: config.color, fontSize: '0.9rem' }}>
                                         {config.icon}
                                     </Avatar>
-                                    <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
-                                        {config.label}
-                                    </Typography>
+                                    <Typography variant="body2">{config.label}</Typography>
                                 </Stack>
                             </MenuItem>
                         );
                     })}
                 </TextField>
 
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={2}>
                     <TextField
                         label="Importe"
                         name="amount"
@@ -115,6 +111,7 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                         size="small"
                         value={formData.amount}
                         onChange={handleChange}
+                        InputLabelProps={{ shrink: true }}
                         InputProps={{
                             startAdornment: <InputAdornment position="start">€</InputAdornment>,
                         }}
@@ -132,18 +129,12 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                     />
                 </Stack>
 
-                {/* BOTONES MÁS PEQUEÑOS Y COMPACTOS */}
-                <Stack direction="row" spacing={1.5} pt={1}>
+                {/* BOTONES */}
+                <Stack direction="row" spacing={2} pt={2}>
                     <Button
                         fullWidth
                         onClick={onCancel}
-                        size="small" // Tamaño pequeño de MUI
-                        sx={{
-                            color: 'text.secondary',
-                            fontWeight: 700,
-                            textTransform: 'none',
-                            fontSize: '0.8rem' // Fuente más pequeña
-                        }}
+                        sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'none' }}
                     >
                         Cancelar
                     </Button>
@@ -151,19 +142,21 @@ const ExpenseForm = ({ onSubmit, onCancel, initialData }) => {
                         type="submit"
                         variant="contained"
                         fullWidth
-                        size="small" // Tamaño pequeño de MUI
                         sx={{
-                            borderRadius: 2,
-                            py: 0.8, // Menos relleno vertical
+                            borderRadius: 3,
+                            py: 1.2,
                             fontWeight: 800,
                             textTransform: 'none',
-                            fontSize: '0.8rem', // Fuente más pequeña
                             bgcolor: currentCategoryStyle.color,
-                            boxShadow: 'none', // Menos sombra para un look más limpio
-                            '&:hover': { bgcolor: currentCategoryStyle.color, filter: 'brightness(0.9)' }
+                            boxShadow: `0 4px 14px ${currentCategoryStyle.color}40`,
+                            '&:hover': {
+                                bgcolor: currentCategoryStyle.color,
+                                filter: 'brightness(0.9)',
+                                boxShadow: `0 6px 20px ${currentCategoryStyle.color}60`,
+                            }
                         }}
                     >
-                        {initialData ? "Actualizar" : "Guardar"}
+                        {initialData ? "Actualizar" : "Guardar Gasto"}
                     </Button>
                 </Stack>
             </Stack>
