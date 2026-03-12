@@ -28,7 +28,7 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ p: 2, pt: 1 }}>
             <Stack spacing={2.5}>
-                {/* NOMBRE DE LA META */}
+                {/* META */}
                 <TextField
                     label="¿Para qué quieres ahorrar?"
                     name="name"
@@ -38,7 +38,7 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                     autoFocus
                     value={formData.name}
                     onChange={handleChange}
-                    InputLabelProps={{ shrink: true }} // Evita que el placeholder pise el label
+                    InputLabelProps={{ shrink: true }}
                 />
 
                 {/* SELECTOR DE CATEGORÍA */}
@@ -73,7 +73,7 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                         required
                         value={formData.targetAmount}
                         onChange={handleChange}
-                        InputLabelProps={{ shrink: true }} // CRÍTICO para el símbolo €
+                        InputLabelProps={{ shrink: true }}
                         inputProps={{ min: 0, step: "0.01" }}
                         InputProps={{
                             startAdornment: <InputAdornment position="start">€</InputAdornment>,
@@ -87,7 +87,7 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                         fullWidth
                         value={formData.suggestedAmount}
                         onChange={handleChange}
-                        InputLabelProps={{ shrink: true }} // CRÍTICO para el símbolo €
+                        InputLabelProps={{ shrink: true }}
                         inputProps={{ min: 0, step: "0.01" }}
                         InputProps={{
                             startAdornment: <InputAdornment position="start">€</InputAdornment>,
