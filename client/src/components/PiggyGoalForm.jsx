@@ -80,19 +80,6 @@ const PiggyGoalForm = ({ onSubmit, onCancel }) => {
                         }}
                     />
 
-                    <TextField
-                        label="Ahorro Mensual"
-                        name="suggestedAmount"
-                        type="number"
-                        fullWidth
-                        value={formData.suggestedAmount}
-                        onChange={handleChange}
-                        InputLabelProps={{ shrink: true }}
-                        inputProps={{ min: 0, step: "0.01" }}
-                        InputProps={{
-                            startAdornment: <InputAdornment position="start">€</InputAdornment>,
-                        }}
-                    />
                 </Stack>
 
                 {/* BOTONES DE ACCIÓN */}
