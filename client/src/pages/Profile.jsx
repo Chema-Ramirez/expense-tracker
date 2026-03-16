@@ -1,34 +1,67 @@
 import {
     Container, Typography, Box, Paper, Stack,
-    Avatar, Button, Switch, ListItem, ListItemText,
+    Avatar, Button, ButtonBase, Switch, ListItem, ListItemText,
     ListItemIcon, IconButton, Badge, TextField, LinearProgress
 } from "@mui/material";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LogoutIcon from "@mui/icons-material/Logout";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import EditIcon from "@mui/icons-material/Edit";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SecurityIcon from '@mui/icons-material/Security';
 import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from "../hooks/useAuth";
-import { useContext, useState, useRef, useMemo } from "react";
+import { useContext, useState, useMemo } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import ModalWrapper from "../components/ModalWrapper";
 import { useExpenses } from "../hooks/useExpenses";
 import { getCategoryConfig, CATEGORIES } from "../utils/categoryHelpers";
 
+const AVATAR_STYLES = [
+    { id: 'avataaars', label: 'Humano' },
+    { id: 'bottts', label: 'Robot' },
+    { id: 'adventurer', label: 'Aventura' },
+    { id: 'pixel-art', label: 'Pixel' },
+    { id: 'big-smile', label: 'Sonrisa' }
+];
+
 const Profile = () => {
-    const { user } = useAuth();
+    const { user, updateProfile } = useAuth();
     const { mode, toggleColorMode } = useContext(ThemeContext);
     const { expenses } = useExpenses();
-    const fileInputRef = useRef(null);
 
+    // ESTADOS
     const [openEditModal, setOpenEditModal] = useState(false);
     const [openPassModal, setOpenPassModal] = useState(false);
+    const [openAvatarModal, setOpenAvatarModal] = useState(false);
     const [notifications, setNotifications] = useState(true);
 
-    // LÓGICA DE DATOS 
+    const [editData, setEditData] = useState({
+        name: user?.name || '',
+        email: user?.email || ''
+    });
+
+    const handleSaveProfile = () => {
+        updateProfile(editData);
+        setOpenEditModal(false);
+    };
+
+    const handleOpenEdit = () => {
+        setEditData({ name: user?.name, email: user?.email });
+        setOpenEditModal(true);
+    };
+
+    const getDiceBearUrl = (style) => `https://api.dicebear.com/7.x/${style}/svg?seed=${user?.email || 'default'}`;
+
+    const handleSelectAvatar = (style) => {
+        const newUrl = getDiceBearUrl(style);
+        updateProfile({ avatarUrl: newUrl });
+        setOpenAvatarModal(false);
+    };
+
+    // LÓGICA DE DATOS
     const { topExpenses, categoryStats } = useMemo(() => {
+        if (!expenses) return { topExpenses: [], categoryStats: [] };
+
         const lowCaseCategories = CATEGORIES.map(cat => cat.id.toLowerCase());
         const incomeKeywords = ['ingreso', 'nomina', 'ingresos', 'salary'];
 
@@ -76,7 +109,7 @@ const Profile = () => {
                     </Typography>
                 </Stack>
                 <Typography variant="body2" color="text.secondary" fontWeight={500}>
-                    Edita tu información personal y revisa tus estadísticas de gastos
+                    Edita tu información personal y revisa tus estadísticas
                 </Typography>
             </Box>
 
@@ -87,28 +120,37 @@ const Profile = () => {
                         overlap="circular"
                         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                         badgeContent={
-                            <IconButton onClick={() => fileInputRef.current.click()} sx={{ bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' }, width: 32, height: 32 }}>
+                            <IconButton
+                                onClick={() => setOpenAvatarModal(true)}
+                                sx={{ bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' }, width: 32, height: 32 }}
+                            >
                                 <PhotoCameraIcon sx={{ fontSize: 18 }} />
                             </IconButton>
                         }
                     >
-                        <Avatar src={user?.avatarUrl} sx={{ width: 100, height: 100, bgcolor: "primary.main", fontSize: 40, fontWeight: 900 }}>
-                            {user?.name?.charAt(0)}
-                        </Avatar>
+                        <Avatar
+                            key={user?.avatarUrl}
+                            src={user?.avatarUrl || getDiceBearUrl('avataaars')}
+                            sx={{ width: 100, height: 100, border: '4px solid white', boxShadow: 3 }}
+                        />
                     </Badge>
-                    <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept="image/*" />
                     <Box textAlign="center">
                         <Typography variant="h6" fontWeight={900}>{user?.name}</Typography>
                         <Typography variant="body2" color="text.secondary">{user?.email}</Typography>
                     </Box>
-                    <Button variant="outlined" startIcon={<EditIcon />} onClick={() => setOpenEditModal(true)} sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700 }}>
+                    <Button
+                        variant="outlined"
+                        startIcon={<EditIcon />}
+                        onClick={handleOpenEdit}
+                        sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700 }}
+                    >
                         Editar Perfil
                     </Button>
                 </Stack>
             </Paper>
 
             {/* MAYORES GASTOS */}
-            <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Mayores Gastos </Typography>
+            <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Mayores Gastos</Typography>
             <Paper elevation={0} sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", mb: 4 }}>
                 {topExpenses.length > 0 ? (
                     <Stack spacing={2}>
@@ -120,9 +162,7 @@ const Profile = () => {
                                         <Avatar sx={{ bgcolor: `${config.color}15`, color: config.color, width: 40, height: 40 }}>
                                             {config.icon}
                                         </Avatar>
-                                        <Box>
-                                            <Typography variant="body2" fontWeight={800}>{exp.description || config.label}</Typography>
-                                        </Box>
+                                        <Typography variant="body2" fontWeight={800}>{exp.description || config.label}</Typography>
                                     </Stack>
                                     <Typography variant="body2" fontWeight={900} color="error.main">
                                         -{Math.abs(exp.amount).toLocaleString()} €
@@ -136,7 +176,7 @@ const Profile = () => {
                 )}
             </Paper>
 
-            {/* GRÁFICA DE BARRAS */}
+            {/* GRÁFICA DE CATEGORÍAS */}
             <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Gasto por Categoría</Typography>
             <Paper elevation={0} sx={{ p: 3, borderRadius: 2, border: "1px solid", borderColor: "divider", mb: 4 }}>
                 {categoryStats.length > 0 ? (
@@ -151,9 +191,7 @@ const Profile = () => {
                                     variant="determinate"
                                     value={cat.percentage}
                                     sx={{
-                                        height: 8,
-                                        borderRadius: 2,
-                                        bgcolor: `${cat.color}15`,
+                                        height: 8, borderRadius: 2, bgcolor: `${cat.color}15`,
                                         '& .MuiLinearProgress-bar': { bgcolor: cat.color, borderRadius: 2 }
                                     }}
                                 />
@@ -165,7 +203,7 @@ const Profile = () => {
                 )}
             </Paper>
 
-            {/* AJUSTES */}
+            {/* PREFERENCIAS */}
             <Typography variant="subtitle2" color="text.secondary" mb={1} ml={3} fontWeight={800}>Preferencias</Typography>
             <Paper elevation={0} sx={{ borderRadius: 2, border: "1px solid", borderColor: "divider", overflow: "hidden", mb: 4 }}>
                 <ListItem divider>
@@ -178,30 +216,82 @@ const Profile = () => {
                     <ListItemText primary={<Typography fontWeight={700}>Notificaciones</Typography>} secondary="Recibir notificaciones" />
                     <Switch checked={notifications} onChange={() => setNotifications(!notifications)} />
                 </ListItem>
-                <ListItem button onClick={() => setOpenPassModal(true)}>
-                    <ListItemIcon><SecurityIcon color="primary" /></ListItemIcon>
-                    <ListItemText primary={<Typography fontWeight={700}>Seguridad</Typography>} secondary="Cambiar contraseña" />
-                    <EditIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                <ListItem disablePadding onClick={() => setOpenPassModal(true)}>
+                    <ButtonBase sx={{ width: '100%', p: 2, textAlign: 'left', display: 'flex', justifyContent: 'flex-start' }}>
+                        <ListItemIcon><SecurityIcon color="primary" /></ListItemIcon>
+                        <ListItemText
+                            primary={<Typography fontWeight={700}>Seguridad</Typography>}
+                            secondary="Cambiar contraseña"
+                        />
+                        <EditIcon sx={{ fontSize: 18, color: 'text.disabled' }} />
+                    </ButtonBase>
                 </ListItem>
             </Paper>
 
+            {/* MODAL AVATARES */}
+            <ModalWrapper open={openAvatarModal} onClose={() => setOpenAvatarModal(false)} title="Elige tu estilo">
+                <Box sx={{ py: 2 }}>
+                    <Stack direction="row" spacing={2} justifyContent="center" flexWrap="wrap" useFlexGap>
+                        {AVATAR_STYLES.map((style) => (
+                            <ButtonBase
+                                key={style.id}
+                                onClick={() => handleSelectAvatar(style.id)}
+                                sx={{
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                                    borderRadius: 2, p: 1, transition: '0.2s',
+                                    '&:hover': { bgcolor: 'action.hover' }
+                                }}
+                            >
+                                <Avatar
+                                    src={getDiceBearUrl(style.id)}
+                                    sx={{ width: 70, height: 70, mb: 1, border: '2px solid transparent' }}
+                                />
+                                <Typography variant="caption" fontWeight={700}>{style.label}</Typography>
+                            </ButtonBase>
+                        ))}
+                    </Stack>
+                </Box>
+            </ModalWrapper>
 
-            {/* MODALES */}
+            {/* MODAL EDITAR DATOS */}
             <ModalWrapper open={openEditModal} onClose={() => setOpenEditModal(false)} title="Editar Datos">
                 <Stack spacing={2} pt={1}>
-                    <TextField fullWidth label="Nombre" defaultValue={user?.name} variant="filled" />
-                    <TextField fullWidth label="Email" defaultValue={user?.email} variant="filled" />
-                    <Button variant="contained" fullWidth sx={{ py: 1.5, borderRadius: 1.5, fontWeight: 800 }}>Guardar Cambios</Button>
+                    <TextField
+                        fullWidth
+                        label="Nombre"
+                        value={editData.name}
+                        onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                        variant="filled"
+                    />
+                    <TextField
+                        fullWidth
+                        label="Email"
+                        value={editData.email}
+                        onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                        variant="filled"
+                    />
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={handleSaveProfile}
+                        sx={{ py: 1.5, borderRadius: 1.5, fontWeight: 800 }}
+                    >
+                        Guardar Cambios
+                    </Button>
                 </Stack>
             </ModalWrapper>
 
+            {/* MODAL SEGURIDAD */}
             <ModalWrapper open={openPassModal} onClose={() => setOpenPassModal(false)} title="Seguridad">
                 <Stack spacing={2} pt={1}>
                     <TextField fullWidth type="password" label="Contraseña Actual" variant="filled" />
                     <TextField fullWidth type="password" label="Nueva Contraseña" variant="filled" />
-                    <Button variant="contained" color="primary" fullWidth sx={{ py: 1.5, borderRadius: 3, fontWeight: 800 }}>Actualizar Contraseña</Button>
+                    <Button variant="contained" color="primary" fullWidth sx={{ py: 1.5, borderRadius: 3, fontWeight: 800 }}>
+                        Actualizar Contraseña
+                    </Button>
                 </Stack>
             </ModalWrapper>
+
         </Container>
     );
 };

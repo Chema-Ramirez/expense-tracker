@@ -17,23 +17,13 @@ const ModalWrapper = ({ open, onClose, title, children }) => {
                     borderRadius: 5,
                     m: 2,
                     overflow: 'hidden',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
                     backgroundImage: 'none',
                 }
             }}
         >
-            {/* HEADER */}
-            <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                px={3}
-                pt={2.5}
-                pb={1}
-            >
-                <Typography
-                    variant="subtitle1"
-                    fontWeight={900}
+            <Box display="flex" justifyContent="space-between" alignItems="center" px={3} pt={2.5} pb={1}>
+                <Typography variant="subtitle1" fontWeight={900}
                     sx={{
                         letterSpacing: '-0.02em',
                         background: `linear-gradient(45deg, ${theme.palette.text.primary}, ${theme.palette.primary.main})`,
@@ -43,22 +33,12 @@ const ModalWrapper = ({ open, onClose, title, children }) => {
                 >
                     {title}
                 </Typography>
-
-                <IconButton
-                    onClick={onClose}
-                    size="small"
-                    sx={{
-                        bgcolor: 'action.hover',
-                        '&:hover': { bgcolor: 'error.main', color: 'white' },
-                        transition: '0.2s'
-                    }}
-                >
+                <IconButton onClick={onClose} size="small" sx={{ '&:hover': { bgcolor: 'error.main', color: 'white' } }}>
                     <CloseIcon fontSize="small" />
                 </IconButton>
             </Box>
 
-            {/* CONTENIDO */}
-            <DialogContent sx={{ p: 0 }}>
+            <DialogContent sx={{ p: 3, pt: 0 }}>
                 {children}
             </DialogContent>
         </Dialog>

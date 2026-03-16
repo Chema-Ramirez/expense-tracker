@@ -22,7 +22,6 @@ export const AuthProvider = ({ children }) => {
 
             try {
                 const response = await getCurrentUser();
-
                 const userData = response.user || response;
 
                 if (userData) {
@@ -42,9 +41,16 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = (userData, token) => {
+        const savedUser = JSON.parse(localStorage.getItem("user"));
+        const userWithPersistentAvatar = {
+            ...userData,
+            avatarUrl: (savedUser && savedUser.email === userData.email)
+                ? savedUser.avatarUrl
+                : userData.avatarUrl
+        };
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(userData));
-        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userWithPersistentAvatar));
+        setUser(userWithPersistentAvatar);
     };
 
     const logout = () => {
@@ -52,12 +58,21 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("user");
         setUser(null);
     };
+
+    const updateProfile = (newData) => {
+        setUser((prevUser) => {
+            const updatedUser = { ...prevUser, ...newData };
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            return updatedUser;
+        });
+    };
+
     if (loading) {
         return null;
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, loading, updateProfile }}>
             {children}
         </AuthContext.Provider>
     );
