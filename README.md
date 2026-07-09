@@ -35,6 +35,19 @@ Bitoink es una aplicación web Full-Stack diseñada para la gestión y control d
 
 ---
 
+## Seguridad e Interceptores API
+La aplicación cuenta con una capa de sincronización automática entre cliente y servidor:
+
+Request Interceptor: Limpia las comillas dobles residuales del localStorage en el navegador y adjunta de forma automática el token en las cabeceras bajo el formato Bearer token.
+
+Response Interceptor: Escucha activamente las respuestas del servidor. Si detecta un error 401 (No autorizado) o un token expirado, elimina de forma automática las credenciales locales y redirige de inmediato al usuario al /login.
+
+Instalación y Configuración
+Prerrequisitos
+Node.js instalado (v16 o superior recomendado)
+
+---
+
 ## Arquitectura del Proyecto (Puntos Clave)
 
 Basado en la estructura del código, el proyecto sigue un patrón modular limpio:
@@ -53,14 +66,3 @@ Basado en la estructura del código, el proyecto sigue un patrón modular limpio
 │   │   ├── helpers/        # Utilidades visuales (categoryHelpers.jsx)
 │   │   ├── services/       # Cliente HTTP e interceptores (api.js)
 │   │   └── utils/          # Limpieza de filtros y errores (ApiUtils.js)
-
-Seguridad e Interceptores API
-La aplicación cuenta con una capa de sincronización automática entre cliente y servidor:
-
-Request Interceptor: Limpia las comillas dobles residuales del localStorage en el navegador y adjunta de forma automática el token en las cabeceras bajo el formato Bearer token.
-
-Response Interceptor: Escucha activamente las respuestas del servidor. Si detecta un error 401 (No autorizado) o un token expirado, elimina de forma automática las credenciales locales y redirige de inmediato al usuario al /login.
-
-Instalación y Configuración
-Prerrequisitos
-Node.js instalado (v16 o superior recomendado)
